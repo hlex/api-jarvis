@@ -30,7 +30,7 @@
     "commit": "git-cz",
     "dev": "better-npm-run dev",
     "build": "cross-env BABEL_ENV=production babel src --out-dir dist",
-    "predeploy": "npm run build && npm run build:lib",
+    "predeploy": "npm run build",
     "deploy": "npm version patch && npm publish",
     "clean": "better-npm-run clean",
     "test": "better-npm-run test",
