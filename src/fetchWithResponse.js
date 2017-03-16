@@ -3,13 +3,13 @@ import _ from 'lodash';
 import { ClientError, RedirectionError } from '../models';
 import { prepareRequest } from '../utils';
 
-const fetchWithResponse = (url, params) => {
+const fetchWithResponse = (url, params, errorFormatObject) => {
   console.log('fetchWithResponse', url, params);
   const options = {
     timeoutMS: _.get(params, 'timeout') || 600000,
   };
   const timeout = new Promise((resolve, reject) => {
-    const timeoutError = new ClientError({
+    const timeoutError = errorFormatObject !== undefined ? errorFormatObject : new ClientError({
       type: 'ERROR',
       trxId: Date.now(),
       processInstance: 'local',
@@ -58,7 +58,7 @@ const fetchWithResponse = (url, params) => {
         console.error('response # 1 status = ', response.status);
         console.error('response # 1 status = 3XX', response);
         console.error('=====================');
-        error = new RedirectionError({
+        error = errorFormatObject !== undefined ? errorFormatObject : new RedirectionError({
           type: 'ERROR',
           trxId: Date.now(),
           processInstance: 'local',
@@ -94,7 +94,7 @@ const fetchWithResponse = (url, params) => {
           }
         }
         if (response.status === 404) {
-          error = new ClientError({
+          error = errorFormatObject !== undefined ? errorFormatObject : new ClientError({
             type: 'ERROR',
             trxId: Date.now(),
             processInstance: 'local',
