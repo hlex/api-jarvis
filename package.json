@@ -4,7 +4,7 @@
   "description": "api jarvis project",
   "main": "src/index.js",
   "repository": {
-    "url": "https:git@github.com:hlex/api-helper.git",
+    "url": "https:git@github.com:hlex/api-jarvis.git",
     "type": "git"
   },
   "author": "Mondit Thumniramon (mondit.thum@gmail.com)",
@@ -15,8 +15,8 @@
     "timeout",
     "error"
   ],
-  "homepage": "https://github.com/hlex/api-helper",
-  "bugs": "https://github.com/hlex/api-helper/issues",
+  "homepage": "https://github.com/hlex/api-jarvis",
+  "bugs": "https://github.com/hlex/api-jarvis/issues",
   "files": [
     "src",
     "README.md"
