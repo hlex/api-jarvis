@@ -53,7 +53,7 @@
       "command": "mocha ./test/*.js --compilers js:babel-register --watch"
     },
     "clean": {
-      "command": "rimraf src"
+      "command": "rimraf dist"
     }
   },
   "devDependencies": {
