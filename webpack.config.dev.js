@@ -47,7 +47,7 @@ module.exports = {
   },
   resolve: {
     alias: {
-      'react-alert-message': path.join(__dirname, 'src'),
+      'api-jarvis': path.join(__dirname, 'src'),
     },
     modulesDirectories: ['app', 'src', 'node_modules'],
     extensions: ['', '.js', '.jsx', '.json'],

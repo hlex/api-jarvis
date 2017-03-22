@@ -1,36 +1,21 @@
 
 import React, { Component, PropTypes } from 'react';
-
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
+import * as Actions from '../actions';
+
+import AlertMessage from './AlertMessage';
 
 // State
 function mapStateToProps(state) {
   return {
-    todoLists: state.todo.todoLists,
-    sortByStatus: state.todo.sortByStatus
+    ...state,
   }
 }
 
 // Action
 const actions = {
-  addTodo: (todo) => ({
-    type: 'ADD_TODO',
-    todo,
-  }),
-  deleteTodo: (id) => ({
-    type: 'DELETE_TODO',
-    id,
-  }),
-  sortTodoStatus: (status) => ({
-    type: 'SORT_TODO_BY_STATUS',
-    status,
-  }),
-  updateTodoStatus: (id, status) => ({
-    type: 'UPDATE_TODO_STATUS',
-    id,
-    status,
-  })
+  ...Actions,
 }
 
 function mapDispatchToProps(dispatch) {
@@ -40,131 +25,50 @@ function mapDispatchToProps(dispatch) {
 @connect(mapStateToProps, mapDispatchToProps)
 export default class App extends React.Component {
   static propTypes = {
-    todoLists: React.PropTypes.array,
-    sortByStatus: React.PropTypes.string,
+    actions: React.PropTypes.shape({}),
   }
-
-  addTodo = (e) => {
-    /**
-     * If user Enter
-     */
-    if (e.keyCode === 13 && e.target.value !== '') {
-      const newTodo = {
-        id: Date.now(),
-        label: e.target.value,
-        status: 'Active',
-      }
-      this.props.actions.addTodo(newTodo)
-      /**
-       * Clear value
-       * @type {String}
-       */
-      e.target.value = '';
-    }
-  }
-
-  sortTodoStatus = (status) => {
-    this.props.actions.sortTodoStatus(status)
-  }
-
-  updateTodoStatus = (id, status) => {
-    this.props.actions.updateTodoStatus(id, status)
-  }
-
   render() {
-    const { todoLists, sortByStatus, actions } = this.props;
-
-    /**
-     * Sort Todo list by status
-     * @type {Array}
-     */
-    let todoListBySort = todoLists;
-    if (sortByStatus !== 'All') {
-      todoListBySort = todoLists.filter((todo) => todo.status === sortByStatus);
-    }
-
+    const { actions } = this.props;
     return (
-      <div className="container">
-        <br />
-        <br />
-        <br />
-        <div className="box-todo">
-          <div className="box-input">
-            <div className="wrap-form-input">
-              <input
-                onKeyUp={(e) => this.addTodo(e)}
-                type="text"
-                className="form-input"
-                placeholder="What needs to be done?"
-              />
+      <div id="api-jarvis-demo">
+        <div className="container">
+          <section id="welcome">
+            API <span>JARVIS</span><i className="fa fa-rocket" aria-hidden="true" />
+          </section>
+          <section id="intro">
+          </section>
+          <section id="example">
+            <div className="title">DEMO</div>
+            <div className="row">
+              <div className="D-4">
+                <button className="button jarvis full" onClick={() => actions.getCustomerProfileWithLoading('1100800901522')}>Fetch With Loading</button>
+              </div>
+              <div className="D-4">
+                <button className="button jarvis full" onClick={() => actions.getCustomerProfileWithErrorRequireField('1100800901522')}>Fetch Error 400</button>
+              </div>
+              <div className="D-4">
+                <button className="button jarvis full" onClick={() => actions.getCustomerProfileWithNotFound('1100800901522')}>Fetch Error 404</button>
+              </div>
             </div>
-          </div>
-          {
-            todoListBySort.map((todo) => <TodoItem todo={todo} deleteTodo={() => actions.deleteTodo(todo.id)} updateTodoStatus={this.updateTodoStatus} />)
-          }
-          <br />
-          <ButtonSortBy sortByStatus={sortByStatus} label="All" onClickButton={this.sortTodoStatus} />
-          <ButtonSortBy sortByStatus={sortByStatus} label="Active" onClickButton={this.sortTodoStatus} />
-          <ButtonSortBy sortByStatus={sortByStatus} label="Completed" onClickButton={this.sortTodoStatus} />
+            <br />
+            <br />
+            <div className="row">
+              <div className="D-6">
+                <button className="button jarvis full" onClick={() => actions.getCustomerProfileWithUnAuthorize('1100800901522')}>Fetch Error 304</button>
+              </div>
+              <div className="D-6">
+                <button className="button jarvis full" onClick={() => actions.getCustomerProfileWithTimeout('1100800901522')}>Fetch Error Timeout</button>
+              </div>
+            </div>
+          </section>
+          <section id="guide">
+          </section>
+          <section id="partner">
+            <a target="_blank" href="https://github.com/hlex/api-jarvis"><i className="fa fa-github" />github</a>
+          </section>
         </div>
-        <br />
-        <br />
-        <br />
+        <AlertMessage />
       </div>
     );
   }
-}
-
-
-/**
- * Component button sortby
- * @param  {String} options.sortByStatus
- * @param  {String} options.label
- * @param  {Function} options.onClickButton
- * @return {Component}
- */
-const ButtonSortBy = ({ sortByStatus, label, onClickButton}) => {
-  return (
-    <button
-      className={`${sortByStatus === label ? 'button active' : 'button'}`}
-      onClick={() => onClickButton(label)}
-    >{label}</button>
-  )
-}
-
-ButtonSortBy.propTypes = {
-  sortByStatus: PropTypes.string.isRequired,
-  label: PropTypes.string.isRequired,
-  onClickButton: PropTypes.func.isRequired,
-}
-
-
-/**
- * Component todo item
- * @param  {Object} options.todo
- * @param  {Function} options.updateTodoStatus
- * @return {Component}
- */
-const TodoItem = ({ todo, updateTodoStatus, deleteTodo }) => {
-  return (
-    <div className="todo-item">
-      <div className="input-checkbox">
-        <label>
-          <input type="checkbox" name="checkbox" checked={todo.status === 'Completed'} onChange={() => updateTodoStatus(todo.id, todo.status)} />
-          <span className="input"></span>
-        </label>
-      </div>
-      {
-        todo.status === 'Active'
-        ? todo.label
-        : <del>{todo.label}</del>
-      }
-      <div className="delete" onClick={deleteTodo}>✘</div>
-    </div>
-  );
-};
-
-TodoItem.propTypes = {
-  todo: PropTypes.object.isRequired,
-  updateTodoStatus: PropTypes.func.isRequired,
 }

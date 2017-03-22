@@ -1,24 +1,15 @@
-// import { isPaeServiceError, isPondServiceError } from '../utils/apiErrorValidations';
-// import { convertPaeServiceToError } from '../utils/convertors';
+import { defaultValidateServiceError, defaultResponseToErrorConvertor } from './utils';
 
-const handleResponseError = (res, customApiErrorValidationFunction, convertorFunction) => {
+const handleResponseCatchError = (response, customApiErrorValidationFunction, convertorFunction) => {
   if (typeof customApiErrorValidationFunction === 'function' && typeof convertorFunction === 'function') {
-    if (customApiErrorValidationFunction(res)) throw convertorFunction(res);
-    else return res;
+    if (customApiErrorValidationFunction(response)) throw convertorFunction(response);
+    else return response;
   }
   console.warn('You do not send any validation function');
-  return res;
+  console.warn('Jarvis will using his own function');
+  // use default
+  if (defaultValidateServiceError(response)) throw defaultResponseToErrorConvertor(response);
+  return response;
 }
 
-// const handlePaeResponseError = (res, customApiErrorValidationFunction) => {
-//   if (typeof customApiErrorValidationFunction === 'function') {
-//     if (customApiErrorValidationFunction(res)) throw convertPaeServiceToError(res);
-//     else return res;
-//   }
-//   if (isPaeServiceError(res)) throw convertPaeServiceToError(res);
-//   return res;
-// };
-
-export default {
-  handleResponseError,
-};
+export default handleResponseCatchError;

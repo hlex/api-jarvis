@@ -28,6 +28,7 @@
   cursor: pointer;
   border: none;
   outline: none;
+
   &:active {
     // top: 2px;
   }
@@ -41,6 +42,16 @@
   &.xsmall{padding: 3px 10px;font-size: 12px;}
   &.full{display: block;width: 100%;}
   &.text-info{box-shadow: none;}
+
+  &.jarvis {
+    padding: 20px 40px;
+    border-radius: 4px;
+    background: $road-kill-red;
+    border: 1px solid transparent;
+    color: #fff;
+    font-weight: 100;
+    letter-spacing: 0.2em;
+  }
 
   &.red{
     $color: #fff;

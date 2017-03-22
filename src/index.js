@@ -1,9 +1,9 @@
-import handleResponseError from './handleResponses';
-import fetchWithResponse from './fetchWithResponse';
+import handleResponseCatchError from './handleResponses';
+import fetchWithJarvis from './fetchWithJarvis';
 import convertToURLParam from './convertToURLParam';
 
 export {
   convertToURLParam,
-  fetchWithResponse,
-  handleResponseError,
+  fetchWithJarvis,
+  handleResponseCatchError,
 };

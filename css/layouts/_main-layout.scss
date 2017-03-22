@@ -1,3 +1,59 @@
 body{
   font-size: 14px;
 }
+
+#api-jarvis-demo {
+  width: 100%;
+  height: auto;
+  background: rgba(2,0,1,1);
+  background: -moz-linear-gradient(top, rgba(2,0,1,1) 0%, rgba(66,15,20,1) 100%);
+  background: -webkit-gradient(left top, left bottom, color-stop(0%, rgba(2,0,1,1)), color-stop(100%, rgba(66,15,20,1)));
+  background: -webkit-linear-gradient(top, rgba(2,0,1,1) 0%, rgba(66,15,20,1) 100%);
+  background: -o-linear-gradient(top, rgba(2,0,1,1) 0%, rgba(66,15,20,1) 100%);
+  background: -ms-linear-gradient(top, rgba(2,0,1,1) 0%, rgba(66,15,20,1) 100%);
+  background: linear-gradient(to bottom, rgba(2,0,1,1) 0%, rgba(66,15,20,1) 100%);
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#020001', endColorstr='#420f14', GradientType=0 );
+}
+
+section#welcome {
+  padding: 150px 0;
+  text-align: center;
+  font-size: 100px;
+  animation: dimmed 2s;
+  color: #fff;
+  font-family: 'iron_man_of_war_2_ncvregular';
+  letter-spacing: .15em;
+  font-weight: 700;
+  span {
+    color: $brick-james;
+  }
+  i.fa {
+    color: $stealing-beauty;
+    margin-left: 30px;
+  }
+}
+
+section#partner {
+  padding: 30px 0;
+  text-align: center;
+  a {
+    font-size: 30px;
+    color: #fff;
+  }
+  i.fa {
+    margin-right: 10px;
+  }
+}
+
+/* Safari 4.0 - 8.0 */
+@-webkit-keyframes dimmed {
+  from {color: #000}
+  to {color: #fff}
+} 
+
+/* Standard syntax */ 
+@keyframes dimmed {
+  from {color: #000}
+  to {color: #fff}
+}
+

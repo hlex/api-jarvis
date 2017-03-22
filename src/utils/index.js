@@ -1,14 +1,12 @@
 import { prepareRequest } from './prepareRequest';
-import { isPaeServiceError, isPondServiceError } from './apiErrorValidations';
-import { convertPaeServiceToError, convertPondServiceToError } from './convertors';
+import defaultValidateServiceError from './errorValidations';
+import defaultResponseToErrorConvertor from './convertors';
 
 export {
   // error validations
-  isPaeServiceError,
-  isPondServiceError,
+  defaultValidateServiceError,
   // convertors
-  convertPaeServiceToError,
-  convertPondServiceToError,
+  defaultResponseToErrorConvertor,
   // prepareRequest
   prepareRequest,
 };

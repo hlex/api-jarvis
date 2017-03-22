@@ -50,7 +50,7 @@
       }
     },
     "test": {
-      "command": "mocha ./test/*.js --compilers js:babel-register --watch"
+      "command": "mocha ./test/*.spec.js --compilers js:babel-register --watch"
     },
     "clean": {
       "command": "rimraf dist"
@@ -69,6 +69,8 @@
     "babel-preset-stage-0": "^6.5.0",
     "babel-register": "^6.3.13",
     "better-npm-run": "^0.0.13",
+    "chai": "^3.5.0",
+    "chai-as-promised": "^6.0.0",
     "compression-webpack-plugin": "^0.3.1",
     "cross-env": "^1.0.7",
     "css-loader": "^0.23.1",
@@ -86,10 +88,12 @@
     "extract-text-webpack-plugin": "^1.0.1",
     "file-loader": "^0.8.5",
     "mocha": "^2.5.3",
+    "nock": "^9.0.9",
     "node-libs-browser": "^0.5.2",
     "node-sass": "^3.4.2",
     "react": "^15.4.1",
     "react-addons-test-utils": "^0.14.7",
+    "react-alert-message": "^1.3.0",
     "react-dom": "^15.4.1",
     "react-hot-loader": "^3.0.0-beta.1",
     "react-redux": "^4.2.1",
@@ -98,12 +102,12 @@
     "redux-thunk": "^2.1.0",
     "rimraf": "^2.5.2",
     "sass-loader": "^3.2.0",
+    "semantic-release": "^6.3.2",
     "style-loader": "^0.13.1",
     "url-loader": "^0.5.7",
     "webpack": "^1.13.1",
     "webpack-dev-middleware": "^1.2.0",
     "webpack-dev-server": "^1.14.0",
-    "webpack-hot-middleware": "^2.2.0",
-    "semantic-release": "^6.3.2"
+    "webpack-hot-middleware": "^2.2.0"
   }
 }
