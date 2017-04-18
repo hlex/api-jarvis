@@ -2,7 +2,7 @@
   "name": "api-jarvis",
   "version": "0.0.0",
   "description": "api jarvis project",
-  "main": "src/index.js",
+  "main": "dist/index.js",
   "repository": {
     "url": "https:git@github.com:hlex/api-jarvis.git",
     "type": "git"
