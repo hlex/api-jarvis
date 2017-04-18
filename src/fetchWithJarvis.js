@@ -3,6 +3,12 @@ import _ from 'lodash';
 import { ServerError, ClientError, RedirectionError } from './models';
 import { prepareRequest } from './utils';
 
+var _accessToken = '';
+
+const setAccessToken = (accessToken) => {
+  _accessToken = accessToken;
+}
+
 const fetchWithJarvis = (url, params, errorFormatObject) => {
   console.log('fetchWithJarvis:url = ', url);
   params && console.log('fetchWithJarvis:params', params);
@@ -33,7 +39,15 @@ const fetchWithJarvis = (url, params, errorFormatObject) => {
     setTimeout(reject, options.timeoutMS, timeoutError);
   });
   const _fetch = new Promise((resolve, reject) => {
-    fetch(url, prepareRequest(params)).then((response) => {
+    let _url = url;
+    if (!_.isEmpty(_accessToken)) {
+      if ((url.indexOf('&') > 0 || url.indexOf('?') > 0)) {
+        _url = `${url}&access_token=${_accessToken}`;
+      } else {
+        _url = `${url}?access_token=${_accessToken}`;
+      }
+    }
+    fetch(_url, prepareRequest(params)).then((response) => {
       // console.debug('=====================');
       // console.debug('response # 1', response);
       // console.debug('response # 1 status : ', response.status);
@@ -178,4 +192,7 @@ const fetchWithJarvis = (url, params, errorFormatObject) => {
   return Promise.race([timeout, _fetch]);
 };
 
-export default fetchWithJarvis;
+export {
+  fetchWithJarvis,
+  setAccessToken,
+};
