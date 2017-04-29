@@ -14,9 +14,9 @@ const getAccessToken = () => {
 }
 
 const fetchWithJarvis = (url, params, errorFormatObject) => {
-  // console.log('fetchWithJarvis:url = ', url);
-  // params && console.log('fetchWithJarvis:params', params);
-  // errorFormatObject && console.log('fetchWithJarvis:errorFormatObject', errorFormatObject);
+  console.log('fetchWithJarvis:url = ', url);
+  params && console.log('fetchWithJarvis:params', params);
+  errorFormatObject && console.log('fetchWithJarvis:errorFormatObject', errorFormatObject);
   const options = {
     timeoutMS: _.get(params, 'timeout') * 1000 || 60000,
   };
