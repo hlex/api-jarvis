@@ -9,9 +9,7 @@ const setAccessToken = (accessToken) => {
   _accessToken = accessToken;
 }
 
-const getAccessToken = () => {
-  return _accessToken;
-}
+const getAccessToken = () => _accessToken;
 
 const fetchWithJarvis = (url, params, errorFormatObject) => {
   console.log('fetchWithJarvis:url = ', url);
@@ -44,6 +42,7 @@ const fetchWithJarvis = (url, params, errorFormatObject) => {
   });
   const _fetch = new Promise((resolve, reject) => {
     let _url = url;
+    console.log('current_access_token', _accessToken);
     if (!_.isEmpty(_accessToken)) {
       if ((url.indexOf('&') > 0 || url.indexOf('?') > 0)) {
         _url = `${url}&access_token=${_accessToken}`;
