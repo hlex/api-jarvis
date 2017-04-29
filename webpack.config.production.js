@@ -9,7 +9,6 @@ module.exports = {
     style: [
       path.join(__dirname, 'app/index.js'),
       './css/base/_css-reset.scss',
-      './app/containers/recordRedux/style.scss',
     ],
     vendor: [
       'react',
@@ -21,7 +20,7 @@ module.exports = {
   },
 
   output: {
-    path: path.join(__dirname, 'lib'),
+    path: path.join(__dirname, 'demos'),
     filename: 'bundle.js',
   },
 
@@ -68,6 +67,9 @@ module.exports = {
     ],
   },
   resolve: {
+    alias: {
+      'api-jarvis': path.join(__dirname, 'src'),
+    },
     modulesDirectories: ['app', 'src', 'node_modules'],
     extensions: ['', '.js', '.jsx', '.json'],
   },

@@ -29,6 +29,7 @@
   "scripts": {
     "commit": "git-cz",
     "dev": "better-npm-run dev",
+    "build-demos": "better-npm-run build",
     "build": "npm run clean && cross-env BABEL_ENV=production babel src --out-dir dist",
     "predeploy": "npm run build",
     "deploy": "npm version patch && npm publish",

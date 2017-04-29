@@ -9,12 +9,16 @@ const setAccessToken = (accessToken) => {
   _accessToken = accessToken;
 }
 
+const getAccessToken = () => {
+  return _accessToken;
+}
+
 const fetchWithJarvis = (url, params, errorFormatObject) => {
   // console.log('fetchWithJarvis:url = ', url);
   // params && console.log('fetchWithJarvis:params', params);
   // errorFormatObject && console.log('fetchWithJarvis:errorFormatObject', errorFormatObject);
   const options = {
-    timeoutMS: _.get(params, 'timeout') * 1000 || 600000,
+    timeoutMS: _.get(params, 'timeout') * 1000 || 60000,
   };
   const timeout = new Promise((resolve, reject) => {
     const timeoutError = errorFormatObject !== undefined ? errorFormatObject : new ClientError({
@@ -195,4 +199,5 @@ const fetchWithJarvis = (url, params, errorFormatObject) => {
 export {
   fetchWithJarvis,
   setAccessToken,
+  getAccessToken,
 };
