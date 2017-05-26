@@ -3,6 +3,8 @@ import _ from 'lodash';
 import { ServerError, ClientError, RedirectionError } from './models';
 import { prepareRequest } from './utils';
 
+const debug = window.location.href.indexOf('localhost') > 1;
+
 var _accessToken = '';
 
 const setAccessToken = (accessToken) => {
@@ -12,9 +14,9 @@ const setAccessToken = (accessToken) => {
 const getAccessToken = () => _accessToken;
 
 const fetchWithJarvis = (url, params, errorFormatObject) => {
-  console.log('fetchWithJarvis:url = ', url);
-  params && console.log('fetchWithJarvis:params', params);
-  errorFormatObject && console.log('fetchWithJarvis:errorFormatObject', errorFormatObject);
+  console.info('FetchWithJarvis@url : ', url);
+  params && console.info('FetchWithJarvis@params', params);
+  errorFormatObject && params && params.debug && console.log('fetchWithJarvis:errorFormatObject', errorFormatObject);
   const options = {
     timeoutMS: _.get(params, 'timeout') * 1000 || 60000,
   };
@@ -42,7 +44,7 @@ const fetchWithJarvis = (url, params, errorFormatObject) => {
   });
   const _fetch = new Promise((resolve, reject) => {
     let _url = url;
-    console.log('current_access_token', _accessToken);
+    params && params.debug && console.info('Using access token = ', _accessToken);
     if (!_.isEmpty(_accessToken)) {
       if ((url.indexOf('&') > 0 || url.indexOf('?') > 0)) {
         _url = `${url}&access_token=${_accessToken}`;
@@ -51,10 +53,16 @@ const fetchWithJarvis = (url, params, errorFormatObject) => {
       }
     }
     fetch(_url, prepareRequest(params)).then((response) => {
-      // console.debug('=====================');
-      // console.debug('response # 1', response);
-      // console.debug('response # 1 status : ', response.status);
-      // console.debug('=====================');
+      if (debug) {
+        console.debug('=====================');
+        console.debug('response # 1', response);
+        console.debug('response # 1 status : ', response.status);
+        console.debug('response # 1 headers : ', response.headers.get("content-type"));
+        console.debug('=====================');
+      }
+      const contentType = response.headers.get("content-type");
+      const isJson = contentType.indexOf('json') > 1;
+      const isString = '';
       let error;
       // if (!response.ok) {
       //   reject(Error(response.statusText));
@@ -68,11 +76,19 @@ const fetchWithJarvis = (url, params, errorFormatObject) => {
       }
       if (response.status >= 200 && response.status <= 299) {
         // # status 2XX Success -> resolve
-        // console.debug('=====================');
-        // console.debug('response # 1 status = ', response.status);
-        // console.debug('response # 1 status = 2XX', response);
-        // console.debug('=====================');
-        return resolve(response.json());
+        if (debug) {
+          console.debug('=====================');
+          console.debug('response # 1 status = ', response.status);
+          console.debug('response # 1 status = 2XX', response);
+          console.debug('response # 1 isJson = ', isJson);
+          console.debug('=====================');
+        }
+        if (isJson) {
+          return resolve(response.json());
+        } else {
+          return resolve(response.text());
+        }
+
       }
       if (response.status >= 300 && response.status <= 399) {
         // # 3XX Redirection -> reject

@@ -41,22 +41,32 @@ export default class App extends React.Component {
             <div className="title">DEMO</div>
             <div className="row">
               <div className="D-4">
-                <button className="button jarvis full" onClick={() => actions.getCustomerProfileWithLoading('1100800901522')}>Fetch With Loading</button>
+                <button className="button jarvis full" onClick={() => actions.getStats(200)}>Fetch Text Success 200</button>
               </div>
               <div className="D-4">
-                <button className="button jarvis full" onClick={() => actions.getCustomerProfileWithErrorRequireField('1100800901522')}>Fetch Error 400</button>
+                <button className="button jarvis full" onClick={() => actions.getGolds()}>Fetch Json Success 200</button>
               </div>
               <div className="D-4">
-                <button className="button jarvis full" onClick={() => actions.getCustomerProfileWithNotFound('1100800901522')}>Fetch Error 404</button>
+                <button className="button jarvis full" onClick={() => actions.getStatsWithLoading(200)}>Fetch Text With Loading</button>
               </div>
             </div>
             <br />
             <br />
             <div className="row">
-              <div className="D-6">
+              <div className="D-4">
+                <button className="button jarvis full" onClick={() => actions.getStats(400)}>Fetch Text Error 400</button>
+              </div>
+              <div className="D-4">
+                <button className="button jarvis full" onClick={() => actions.getCustomerProfileWithNotFound('1100800901522')}>Fetch Error 404</button>
+              </div>
+              <div className="D-4">
                 <button className="button jarvis full" onClick={() => actions.getCustomerProfileWithUnAuthorize('1100800901522')}>Fetch Error 304</button>
               </div>
-              <div className="D-6">
+            </div>
+            <br />
+            <br />
+            <div className="row">
+              <div className="D-12">
                 <button className="button jarvis full" onClick={() => actions.getCustomerProfileWithTimeout('1100800901522')}>Fetch Error Timeout</button>
               </div>
             </div>

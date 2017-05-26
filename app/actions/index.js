@@ -4,6 +4,9 @@ import { fetchCustomerProfile,
   fetchCustomerProfileWithUnAuthorize,
   fetchCustomerProfileWithTimeout,
   ApplicationError,
+  fetchFilm,
+  fetchStats,
+  fetchGolds,
 } from '../apis';
 
 // ======= ALERT ======
@@ -60,6 +63,75 @@ export const handleError = (error) => {
 };
 
 // ===== ACTIONS =====
+export const getGolds = () => {
+  return (dispatch) => {
+    fetchGolds()
+    .then((response) => {
+      const message = {
+        th: 'ดึงข้อมูลสำเร็จแล้ว',
+        en: 'get data information successfully',
+        technical: '',
+      };
+      dispatch(openAlertMessage('SUCCESS', { message: message }, 3));
+    })
+    .catch((error) => {
+      dispatch(handleError(error));
+    });
+  };
+}
+
+export const getFilm = (filmId) => {
+  return (dispatch) => {
+    fetchFilm(filmId)
+    .then((response) => {
+      const message = {
+        th: 'ดึงข้อมูลสำเร็จแล้ว',
+        en: 'get data information successfully',
+        technical: '',
+      };
+      dispatch(openAlertMessage('SUCCESS', { message: message }, 3));
+    })
+    .catch((error) => {
+      dispatch(handleError(error));
+    });
+  };
+}
+
+export const getStats = (httpCode) => {
+  return (dispatch) => {
+    fetchStats(httpCode)
+    .then((response) => {
+      const message = {
+        th: 'ดึงข้อมูลสำเร็จแล้ว',
+        en: 'get data information successfully',
+        technical: '',
+      };
+      dispatch(openAlertMessage('SUCCESS', { message: message }, 3));
+    })
+    .catch((error) => {
+      dispatch(handleError(error));
+    });
+  };
+}
+
+export const getStatsWithLoading = (httpCode) => {
+  return (dispatch) => {
+    dispatch(openAlertMessage('LOADING', { message: { th: '', en: '', technical: '' } }));
+    fetchStats(httpCode)
+    .then((response) => {
+      const message = {
+        th: 'ดึงข้อมูลสำเร็จแล้ว',
+        en: 'get data information successfully',
+        technical: '',
+      };
+      dispatch(openAlertMessage('SUCCESS', { message: message }, 3));
+    })
+    .catch((error) => {
+      dispatch(handleError(error));
+    });
+  };
+};
+
 
 export const getCustomerProfile = (certificateNumber) => {
   return (dispatch) => {

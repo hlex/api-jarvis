@@ -2,13 +2,19 @@ import { fetchWithJarvis, convertToURLParam, handleResponseCatchError } from 'ap
 
 // ====== Config ============
 
-const cors = true;
+const cors = window.location.href.indexOf('localhost') > 1;
 // const baseURL = cors ? 'http://localhost:1337/https://ghibliapi.herokuapp.com/films/3' : 'https://ghibliapi.herokuapp.com/films/3';
-const baseURL = cors ? 'http://localhost:1337/sff-uat.true.th:8780' : 'http://sff-uat.true.th:8780';
+const baseTrueURL = cors ? 'http://localhost:1337/sff-uat.true.th:8780' : 'http://sff-uat.true.th:8780';
+const baseGhibiURL = 'https://ghibliapi.herokuapp.com';
+const baseHttpStatURL = cors ? 'http://localhost:1337/httpstat.us' : 'http://httpstat.us';
+const baseWingURL = cors ? 'http://localhost:1337/localhost:8888' : 'http://programthong.com';
 const baseApacheURL = 'http://localhost:1337/sff-uat.true.th:18087';
 
 const URL = {
-  customerProfile: `${baseURL}/profiles/customer/get`,
+  customerProfile: `${baseTrueURL}/profiles/customer/get`,
+  film: `${baseGhibiURL}/films`,
+  stats: `${baseHttpStatURL}`,
+  wing: cors ? `${baseWingURL}/wing/wing/wing/public/api` : `${baseWingURL}/wing/wingdev/wing/public/api`,
 };
 const apacheURL = {
   customerProfile: `${baseApacheURL}/profiles/customer/get`,
@@ -59,6 +65,34 @@ export class ApplicationError extends Error {
 }
 
 // ====== SERVICES ============
+
+export const fetchGolds = () => {
+  return fetchWithJarvis(`${URL.wing}/gold/all`, {
+    method: 'GET',
+  })
+  .then((response) => {
+    return handleResponseCatchError(response, isServiceError, convertServiceResponseToError);
+  });
+}
+
+export const fetchStats = (errorCode) => {
+  return fetchWithJarvis(`${URL.stats}/${errorCode}`, {
+    method: 'GET',
+  })
+  .then((response) => {
+    return handleResponseCatchError(response, isServiceError, convertServiceResponseToError);
+  });
+}
+
+export const fetchFilm = (filmId) => {
+  return fetchWithJarvis(`${URL.film}/${filmId}`, {
+    method: 'GET',
+  })
+  .then((response) => {
+    console.log('fetchFilm:response = ', response);
+    return handleResponseCatchError(response, isServiceError, convertServiceResponseToError);
+  });
+}
 
 export const fetchCustomerProfile = (certificateNumber) => {
   const data = {
