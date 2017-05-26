@@ -26,17 +26,51 @@ const getErrorType = (res) => {
 
 const isServiceError = (response) => {
   if (response.fault) return true;
+  if (typeof response === 'string') return true;
   return false;
 }
 
-const convertServiceResponseToError = (res) => {
+const convertServiceResponseToError = (response) => {
+  let type;
+  let trxId;
+  let processInstance;
+  let status;
+  let fault;
+  let displayMessages;
+  if (typeof response === 'string') {
+    type = 'ERROR';
+    trxId = '';
+    processInstance = '';
+    status = 'ERROR';
+    fault = {
+      code: 'SMUI-005',
+      'en-message': `${response}`,
+      'th-messsage': `${response}`,
+    }
+    displayMessages = [
+      {
+        message: `${response}`,
+        'message-type': 'ERROR',
+        'en-message': `${response}`,
+        'th-message': `${response}`,
+        'technical-message': `${response}`,
+      },
+    ];
+  } else {
+    type = getErrorType(response);
+    trxId = _.get(response, 'trx-id', '');
+    processInstance = _.get(response, 'process-instance', '');
+    status = _.get(response, 'status', '');
+    fault = _.get(response, 'fault', {});
+    displayMessages = _.get(response, 'display-messages', []);
+  }
   return new ApplicationError({
-    type: getErrorType(res),
-    trxId: _.get(res, 'trx-id', ''),
-    processInstance: _.get(res, 'process-instance', ''),
-    status: _.get(res, 'status', ''),
-    fault: _.get(res, 'fault', {}),
-    displayMessages: _.get(res, 'display-messages', []),
+    type,
+    trxId,
+    processInstance,
+    status,
+    fault,
+    displayMessages,
   });
 };
 

@@ -117,18 +117,20 @@ export const getStats = (httpCode) => {
 export const getStatsWithLoading = (httpCode) => {
   return (dispatch) => {
     dispatch(openAlertMessage('LOADING', { message: { th: '', en: '', technical: '' } }));
-    fetchStats(httpCode)
-    .then((response) => {
-      const message = {
-        th: 'ดึงข้อมูลสำเร็จแล้ว',
-        en: 'get data information successfully',
-        technical: '',
-      };
-      dispatch(openAlertMessage('SUCCESS', { message: message }, 3));
-    })
-    .catch((error) => {
-      dispatch(handleError(error));
-    });
+    setTimeout(() => {
+      fetchStats(httpCode)
+      .then((response) => {
+        const message = {
+          th: 'ดึงข้อมูลสำเร็จแล้ว',
+          en: 'get data information successfully',
+          technical: '',
+        };
+        dispatch(openAlertMessage('SUCCESS', { message: message }, 3));
+      })
+      .catch((error) => {
+        dispatch(handleError(error));
+      })
+    }, 2000);
   };
 };
 
