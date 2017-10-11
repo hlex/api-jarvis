@@ -4,6 +4,9 @@ A lightweight assistant which helping you get data more easier.
 
 ### If you liked, gimme a star, Thanks.
 
+## Special Thanks to ['Pitipat `Doppy` Srichairat'](https://github.com/Doppy)
+### He is founder of this module.
+
 ## Prerequisite
 This project uses library ES2015 syntax, fetch and isomorphic-fetch.
 Let's checked it out.
@@ -42,7 +45,7 @@ export const getData = () => {
 - Http status error handle build-in (such as http error code = 4XX, 5XX)
 - Timeout handle build-in (in seconds)
 - Default fetch options
-  - Content-Type: 'application-json'
+  - Content-Type: 'application/json'
   - method: 'GET'
   - credentials: 'same-origin'
 - Custom options
@@ -189,7 +192,7 @@ export const getData = () => {
 ### mondit.thum@gmail.com
 [![alt text][logo]](http://line.me/ti/p/~hlexpond)
 
-[logo]: https://www.shareicon.net/data/128x128/2017/05/30/886541_app_512x512.png "GA-MO"
+[logo]: https://www.shareicon.net/data/128x128/2017/05/30/886541_app_512x512.png
 
 ### License
 
