@@ -20,7 +20,7 @@ module.exports = {
   },
 
   output: {
-    path: path.join(__dirname, 'demos'),
+    path: path.join(__dirname, 'demo'),
     filename: 'bundle.js',
   },
 
