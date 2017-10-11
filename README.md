@@ -16,7 +16,7 @@ Let's checked it out.
 `$ npm install api-jarvis --save`
 
 ### YARN
-`$ yarn add api-jarvis --save`
+`$ yarn add api-jarvis`
 
 ## Live Demo
 <https://hlex.github.io/api-jarvis/demo>
@@ -194,6 +194,3 @@ export const getData = () => {
 ### License
 
 API Jarvis is licensed under the [MIT license](http://opensource.org/licenses/MIT)
-
-
-https://cdn0.iconfinder.com/data/icons/social-media-2092/100/social-40-512.png
