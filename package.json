@@ -29,8 +29,8 @@
   "scripts": {
     "commit": "git-cz",
     "dev": "better-npm-run dev",
-    "build-demos": "better-npm-run build",
-    "build": "npm run clean && cross-env BABEL_ENV=production babel src --out-dir dist",
+    "build-demo": "better-npm-run build",
+    "build": "npm run clean && npm run build-demo && cross-env BABEL_ENV=production babel src --out-dir dist",
     "predeploy": "npm run build",
     "deploy": "npm version patch && npm publish",
     "clean": "better-npm-run clean",
@@ -54,7 +54,7 @@
       "command": "mocha ./test/*.spec.js --compilers js:babel-register --watch"
     },
     "clean": {
-      "command": "rimraf dist"
+      "command": "rimraf demo dist"
     }
   },
   "devDependencies": {
@@ -110,5 +110,8 @@
     "webpack-dev-middleware": "^1.2.0",
     "webpack-dev-server": "^1.14.0",
     "webpack-hot-middleware": "^2.2.0"
+  },
+  "dependencies": {
+    "http-proxy-middleware": "^0.17.4"
   }
 }
