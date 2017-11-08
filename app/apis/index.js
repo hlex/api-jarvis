@@ -1,34 +1,37 @@
-import { fetchWithJarvis, convertToURLParam, handleResponseCatchError } from 'api-jarvis';
+import {
+  fetchWithJarvis,
+  convertToURLParam,
+  handleResponseCatchError,
+  setAccessToken,
+} from 'api-jarvis';
 
 // ====== Config ============
 
-const cors = window.location.href.indexOf('localhost') > 1;
-// const baseURL = cors ? 'http://localhost:1337/https://ghibliapi.herokuapp.com/films/3' : 'https://ghibliapi.herokuapp.com/films/3';
-const baseTrueURL = cors ? 'http://localhost:1337/sff-uat.true.th:8780' : 'http://sff-uat.true.th:8780';
+setAccessToken('eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9.TJVA95OrM7E2cBab30RMHrHDcEfxjoYZgeFONFh7HgQ')
+
+const baseTrueURL = 'http://sff-uat.true.th:8780';
 const baseGhibiURL = 'https://ghibliapi.herokuapp.com';
-const baseHttpStatURL = cors ? 'http://localhost:1337/httpstat.us' : 'http://httpstat.us';
-const baseWingURL = cors ? 'http://localhost:1337/localhost:8888' : 'http://programthong.com';
-const baseApacheURL = 'http://localhost:1337/sff-uat.true.th:18087';
+const baseHttpStatURL = 'http://httpstat.us';
+const baseWingURL = 'http://programthong.com';
+const baseApacheURL = 'http://sff-uat.true.th:18087';
 
 const URL = {
   customerProfile: `${baseTrueURL}/profiles/customer/get`,
   film: `${baseGhibiURL}/films`,
   stats: `${baseHttpStatURL}`,
-  wing: cors ? `${baseWingURL}/wing/wing/wing/public/api` : `${baseWingURL}/wing/wingdev/wing/public/api`,
+  wing: `${baseWingURL}/wing/wingdev/wing/public/api`,
 };
 const apacheURL = {
   customerProfile: `${baseApacheURL}/profiles/customer/get`,
 };
 
-const getErrorType = (res) => {
-  return res['display-messages'][0]['message-type'];
-};
+const getErrorType = res => res['display-messages'][0]['message-type'];
 
 const isServiceError = (response) => {
   if (response.fault) return true;
-  if (typeof response === 'string') return true;
+  if (typeof response === 'string' && response.indexOf('500') >= 0) return true;
   return false;
-}
+};
 
 const convertServiceResponseToError = (response) => {
   let type;
@@ -46,7 +49,7 @@ const convertServiceResponseToError = (response) => {
       code: 'SMUI-005',
       'en-message': `${response}`,
       'th-messsage': `${response}`,
-    }
+    };
     displayMessages = [
       {
         message: `${response}`,
@@ -93,40 +96,43 @@ export class ApplicationError extends Error {
     if (typeof Error.captureStackTrace === 'function') {
       Error.captureStackTrace(this, this.constructor);
     } else {
-      this.stack = (new Error(type)).stack;
+      this.stack = new Error(type).stack;
     }
   }
 }
 
 // ====== SERVICES ============
 
-export const fetchGolds = () => {
-  return fetchWithJarvis(`${URL.wing}/gold/all`, {
-    method: 'GET',
-  })
-  .then((response) => {
-    return handleResponseCatchError(response, isServiceError, convertServiceResponseToError);
-  });
-}
+// export const fetchGolds = () => fetchWithJarvis(`${URL.wing}/gold/all`, {
+export const fetchGolds = () => fetchWithJarvis('https://jsonplaceholder.typicode.com/posts/1', {
+  method: 'GET',
+}).then(response => handleResponseCatchError(
+      response,
+      isServiceError,
+      convertServiceResponseToError
+    ));
 
-export const fetchStats = (errorCode) => {
-  return fetchWithJarvis(`${URL.stats}/${errorCode}`, {
-    method: 'GET',
-  })
-  .then((response) => {
-    return handleResponseCatchError(response, isServiceError, convertServiceResponseToError);
-  });
-}
+export const fetchStats = errorCode => fetchWithJarvis(`${URL.stats}/${errorCode}`, {
+  method: 'GET',
+}).then((response) => {
+  console.log('fetchStats', response)
+  handleResponseCatchError(
+    response,
+    isServiceError,
+    convertServiceResponseToError
+  )
+})
 
-export const fetchFilm = (filmId) => {
-  return fetchWithJarvis(`${URL.film}/${filmId}`, {
-    method: 'GET',
-  })
-  .then((response) => {
-    console.log('fetchFilm:response = ', response);
-    return handleResponseCatchError(response, isServiceError, convertServiceResponseToError);
-  });
-}
+export const fetchFilm = filmId => fetchWithJarvis(`${URL.film}/${filmId}`, {
+  method: 'GET',
+}).then((response) => {
+  console.log('fetchFilm:response = ', response);
+  return handleResponseCatchError(
+      response,
+      isServiceError,
+      convertServiceResponseToError
+    );
+});
 
 export const fetchCustomerProfile = (certificateNumber) => {
   const data = {
@@ -135,10 +141,13 @@ export const fetchCustomerProfile = (certificateNumber) => {
   const urlParams = convertToURLParam(data);
   return fetchWithJarvis(`${URL.customerProfile}${urlParams}`, {
     method: 'GET',
-  })
-  .then((response) => {
+  }).then((response) => {
     console.log('fetchCustomerProfile:response = ', response);
-    return handleResponseCatchError(response, isServiceError, convertServiceResponseToError);
+    return handleResponseCatchError(
+      response,
+      isServiceError,
+      convertServiceResponseToError
+    );
   });
 };
 
@@ -149,10 +158,16 @@ export const fetchCustomerProfileWithErrorRequireField = (certificateNumber) => 
   const urlParams = convertToURLParam(data);
   return fetchWithJarvis(`${URL.customerProfile}${urlParams}`, {
     method: 'GET',
-  })
-  .then((response) => {
-    console.log('fetchCustomerProfileWithErrorRequireField:response = ', response);
-    return handleResponseCatchError(response, isServiceError, convertServiceResponseToError);
+  }).then((response) => {
+    console.log(
+      'fetchCustomerProfileWithErrorRequireField:response = ',
+      response
+    );
+    return handleResponseCatchError(
+      response,
+      isServiceError,
+      convertServiceResponseToError
+    );
   });
 };
 
@@ -163,10 +178,13 @@ export const fetchCustomerProfileWithNotFound = (certificateNumber) => {
   const urlParams = convertToURLParam(data);
   return fetchWithJarvis(`${URL.customerProfile}/api/${urlParams}`, {
     method: 'GET',
-  })
-  .then((response) => {
+  }).then((response) => {
     console.log('fetchCustomerProfileWithNotFound:response = ', response);
-    return handleResponseCatchError(response, isServiceError, convertServiceResponseToError);
+    return handleResponseCatchError(
+      response,
+      isServiceError,
+      convertServiceResponseToError
+    );
   });
 };
 
@@ -177,10 +195,13 @@ export const fetchCustomerProfileWithUnAuthorize = (certificateNumber) => {
   const urlParams = convertToURLParam(data);
   return fetchWithJarvis(`${apacheURL.customerProfile}/${urlParams}`, {
     method: 'GET',
-  })
-  .then((response) => {
+  }).then((response) => {
     console.log('fetchCustomerProfileWithNotFound:response = ', response);
-    return handleResponseCatchError(response, isServiceError, convertServiceResponseToError);
+    return handleResponseCatchError(
+      response,
+      isServiceError,
+      convertServiceResponseToError
+    );
   });
 };
 
@@ -192,9 +213,12 @@ export const fetchCustomerProfileWithTimeout = (certificateNumber) => {
   return fetchWithJarvis(`${URL.customerProfile}/${urlParams}`, {
     method: 'GET',
     timeout: 1,
-  })
-  .then((response) => {
+  }).then((response) => {
     console.log('fetchCustomerProfileWithNotFound:response = ', response);
-    return handleResponseCatchError(response, isServiceError, convertServiceResponseToError);
+    return handleResponseCatchError(
+      response,
+      isServiceError,
+      convertServiceResponseToError
+    );
   });
 };

@@ -1,25 +1,21 @@
 // default headers
-const headers = {
-  // WEB_METHOD_CHANNEL: 'WEBUI',
-  // E2E_REFID: '',
-  'Content-Type': 'application/json',
+const defaultHeaders = {
+  // 'Content-Type': 'application/json',
+  'Content-Type' : 'application/x-www-form-urlencoded; charset=UTF-8'
 };
 
-const prepareRequest = (request) => {
+const prepareRequest = (params) => {
   return {
-    // default
     method: 'GET',
     credentials: 'same-origin',
-    headers: headers,
-    ...request,
+    ...params,
+    headers: {
+      ...defaultHeaders,
+      ...params.headers || {},
+    },
   };
 };
 
-const B = () => {
-  console.log('B');
-}
-
 export {
   prepareRequest,
-  B,
 };

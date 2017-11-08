@@ -12,8 +12,9 @@
   "keywords": [
     "api",
     "fetch",
-    "timeout",
-    "error"
+    "fetch helper",
+    "fetch timeout",
+    "fetch error"
   ],
   "homepage": "https://github.com/hlex/api-jarvis",
   "bugs": "https://github.com/hlex/api-jarvis/issues",
