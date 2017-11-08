@@ -1,6 +1,6 @@
 {
   "name": "api-jarvis",
-  "version": "2.2.0",
+  "version": "3.0.1",
   "description": "api jarvis project",
   "main": "dist/index.js",
   "repository": {
@@ -32,11 +32,11 @@
     "dev": "better-npm-run dev",
     "build-demo": "better-npm-run build",
     "build": "npm run clean && npm run build-demo && cross-env BABEL_ENV=production babel src --out-dir dist",
-    "predeploy": "npm run build",
-    "deploy": "npm version patch && npm publish",
     "clean": "better-npm-run clean",
     "test": "better-npm-run test",
-    "semantic-release": "semantic-release pre && npm publish && semantic-release post"
+    "semantic-release": "semantic-release pre && npm publish && semantic-release post",
+    "prerelease": "npm run build && npm run build-demo && git push origin master --tags && npm adduser",
+    "release": "npm publish"
   },
   "betterScripts": {
     "dev": {
@@ -89,6 +89,7 @@
     "express": "^4.14.0",
     "extract-text-webpack-plugin": "^1.0.1",
     "file-loader": "^0.8.5",
+    "http-proxy-middleware": "^0.17.4",
     "mocha": "^2.5.3",
     "nock": "^9.0.9",
     "node-libs-browser": "^0.5.2",
@@ -112,7 +113,5 @@
     "webpack-dev-server": "^1.14.0",
     "webpack-hot-middleware": "^2.2.0"
   },
-  "dependencies": {
-    "http-proxy-middleware": "^0.17.4"
-  }
+  "dependencies": {}
 }
