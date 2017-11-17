@@ -4,6 +4,11 @@ A lightweight assistant which helping you get data more easier.
 
 ### If you liked, gimme a star, Thanks.
 
+## Release Issues
+### Latest version is `v3.1.2`
+* `v3.1.2`
+  - Fixed bugs http code 1XX, 3XX, 5XX not resolve.
+
 ## Special Thanks to ['Pitipat `Doppy` Srichairat'](https://github.com/Doppy)
 ### He is founder of this module.
 

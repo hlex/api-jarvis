@@ -85,7 +85,6 @@ const getResponse = (response, debug) => {
 }
 
 const responseHandler = (response, debug = false) => {
-  const contentType = getContentType(response)
   const baseResponse = {
     _status: response.status,
     _headers: response.headers,
@@ -93,18 +92,13 @@ const responseHandler = (response, debug = false) => {
   }
   return getResponse(response, debug)
   .then((responseBody) => {
-    console.log('responseBody', responseBody)
-    if (isJson(contentType)) {
-      return {
-        ...baseResponse,
-        ...responseBody,
-      }
-    } else if (isText(contentType)) {
-      return {
-        ...baseResponse,
-        textResponse: responseBody,
-      }
-    }
+    const wrapperdResponse = {
+      ...baseResponse,
+      ...responseBody,
+      responseBody,
+    };
+    debug && console.log('fetchWithJarvis@response', wrapperdResponse)
+    return wrapperdResponse
   })
 }
 
@@ -139,7 +133,7 @@ const fetchWithJarvis = (url, params) => {
   debug && console.info('fetchWithJarvis@params', params);
   // errorFormatObject && debug && console.log('fetchWithJarvis:errorFormatObject', errorFormatObject);
   const options = {
-    timeoutMS: params.timeout * 1000 || 5000,
+    timeoutMS: params.timeout * 1000 || 10000,
   };
   const timeout = new Promise((resolve, reject) => {
     const timeoutError = new ClientError({
@@ -229,15 +223,15 @@ const fetchWithJarvis = (url, params) => {
           ],
         }));
       } else if (isHttpCodeInformational(statusCode)) {
-        return httpCodeInformationalHandler(response, debug)
+        return resolve(httpCodeInformationalHandler(response, debug))
       } else if (isHttpCodeSuccess(statusCode)) {
         return resolve(httpCodeSuccesslHandler(response, debug))
       } else if (isHttpRedirection(statusCode)) {
-        return httpCodeRedirectionHandler(response, debug)
+        return resolve(httpCodeRedirectionHandler(response, debug))
       } else if (isHttpClientError(statusCode)) {
-        return httpCodeClientErrorHandler(response, debug)
+        return resolve(httpCodeClientErrorHandler(response, debug))
       } else if (isHttpServerError(statusCode)) {
-        return httpCodeServerErrorHandler(response, debug)
+        return resolve(httpCodeServerErrorHandler(response, debug))
       } else {
         reject(httpCodeServerErrorHandler(response, debug))
       }
