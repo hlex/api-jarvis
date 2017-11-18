@@ -1,5 +1,5 @@
 import handleResponseCatchError from './handleResponses';
-import { setAccessToken, fetchWithJarvis } from './fetchWithJarvis';
+import { setAccessToken, getAccessToken, setDebugMode, fetchWithJarvis } from './fetchWithJarvis';
 import convertToURLParam from './convertToURLParam';
 
 export {
@@ -7,4 +7,6 @@ export {
   fetchWithJarvis,
   handleResponseCatchError,
   setAccessToken,
+  getAccessToken,
+  setDebugMode,
 };

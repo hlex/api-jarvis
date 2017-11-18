@@ -1,6 +1,6 @@
 {
   "name": "api-jarvis",
-  "version": "3.1.2",
+  "version": "3.2.1",
   "description": "api jarvis project",
   "main": "dist/index.js",
   "repository": {

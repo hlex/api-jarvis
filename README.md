@@ -5,7 +5,12 @@ A lightweight assistant which helping you get data more easier.
 ### If you liked, gimme a star, Thanks.
 
 ## Release Issues
-### Latest version is `v3.1.2`
+### Latest version is `v3.2.0`
+* `v3.2.1`
+  - Fixed bugs did not export getAccessToken, setDebugMode.
+* `v3.2.0`
+  - Add function `setDebugMode` to set global debugger for fetchWithJarvis.
+  - Fixed bugs response is neither json nor text then throw error. (Fixed to be responsed).
 * `v3.1.2`
   - Fixed bugs http code 1XX, 3XX, 5XX not resolve.
 

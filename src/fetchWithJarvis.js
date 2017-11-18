@@ -4,7 +4,9 @@ import convertToURLParam from './convertToURLParam';
 import { ServerError, ClientError } from './models';
 import { prepareRequest } from './utils';
 
-const REJECT_CODES = [404, 502]
+let TOKEN = {}
+let DEBUG = false
+// const REJECT_CODES = [404, 502]
 
 const isHttpCodeInformational = code => code >= 100 && code <= 199
 const isHttpCodeSuccess = code => code >= 200 && code <= 299
@@ -12,7 +14,6 @@ const isHttpRedirection = code => code >= 300 && code <= 399
 const isHttpClientError = code => code >= 400 && code <= 499
 const isHttpServerError = code => code >= 500 && code <= 599
 
-// const debug = window.location.href.indexOf('localhost') > 1;
 const regexJson = new RegExp('^application/json', 'i');
 const regexText = new RegExp('^text/plain', 'i');
 
@@ -20,16 +21,6 @@ const isJson = value => regexJson.test(value);
 const isText = value => regexText.test(value);
 
 const getContentType = response => response.headers.get('content-type');
-
-let token = {}
-
-const setAccessToken = (accessToken, key = 'Authorization') => {
-  token = {
-    [key]: accessToken,
-  }
-}
-
-const getAccessToken = () => token;
 
 const addUrlParameter = (url, params) => {
   const indexOfQuestionMark = url.indexOf('?') // found ?
@@ -50,7 +41,7 @@ const addUrlParameter = (url, params) => {
 
 const getResponse = (response, debug) => {
   const contentType = getContentType(response)
-  if (debug) {
+  if (DEBUG || debug) {
     console.debug('=====================');
     console.debug('responseHandler # isJson =', isJson(contentType));
     console.debug('responseHandler # isText =', isText(contentType));
@@ -61,27 +52,28 @@ const getResponse = (response, debug) => {
   } else if (isText(contentType)) {
     return response.text()
   }
-  return new Promise((resolve, reject) => {
-    reject(new ServerError({
-      type: 'ERROR',
-      trxId: Date.now(),
-      processInstance: 'local',
-      fault: {
-        code: 'JVS-XXX',
-        'en-message': `content-type ${contentType} was not handled`,
-        'th-messsage': `content-type ${contentType} was not handled`,
-      },
-      displayMessages: [
-        {
-          message: `content-type ${contentType} was not handled`,
-          'message-type': 'ERROR',
-          'en-message': `content-type ${contentType} was not handled`,
-          'th-message': `content-type ${contentType} was not handled`,
-          'technical-message': `content-type ${contentType} was not handled`,
-        },
-      ],
-    }))
-  })
+  return response.json()
+  // return new Promise((resolve, reject) => {
+  //   reject(new ServerError({
+  //     type: 'ERROR',
+  //     trxId: Date.now(),
+  //     processInstance: 'local',
+  //     fault: {
+  //       code: 'JVS-XXX',
+  //       'en-message': `content-type ${contentType} was not handled`,
+  //       'th-messsage': `content-type ${contentType} was not handled`,
+  //     },
+  //     displayMessages: [
+  //       {
+  //         message: `content-type ${contentType} was not handled`,
+  //         'message-type': 'ERROR',
+  //         'en-message': `content-type ${contentType} was not handled`,
+  //         'th-message': `content-type ${contentType} was not handled`,
+  //         'technical-message': `content-type ${contentType} was not handled`,
+  //       },
+  //     ],
+  //   }))
+  // })
 }
 
 const responseHandler = (response, debug = false) => {
@@ -97,41 +89,40 @@ const responseHandler = (response, debug = false) => {
       ...responseBody,
       responseBody,
     };
-    debug && console.log('fetchWithJarvis@response', wrapperdResponse)
+    if (DEBUG || debug) console.log('fetchWithJarvis@response', wrapperdResponse)
     return wrapperdResponse
   })
 }
 
 const httpCodeInformationalHandler = (response, debug = false) => {
-  if (debug) console.debug('response # status = 1XX', response);
+  if (DEBUG || debug) console.debug('response # status = 1XX', response);
   return responseHandler(response, debug);
 }
 
 const httpCodeSuccesslHandler = (response, debug = false) => {
-  if (debug) console.debug('response # status = 2XX', response);
+  if (DEBUG || debug) console.debug('response # status = 2XX', response);
   return responseHandler(response, debug);
 }
 
 const httpCodeRedirectionHandler = (response, debug = false) => {
-  if (debug) console.debug('response # status = 3XX', response);
+  if (DEBUG || debug) console.debug('response # status = 3XX', response);
   return responseHandler(response, debug);
 }
 
 const httpCodeClientErrorHandler = (response, debug = false) => {
-  if (debug) console.debug('response # status = 4XX', response);
+  if (DEBUG || debug) console.debug('response # status = 4XX', response);
   return responseHandler(response, debug);
 }
 
 const httpCodeServerErrorHandler = (response, debug = false) => {
-  if (debug) console.debug('response # status = 5XX', response);
+  if (DEBUG || debug) console.debug('response # status = 5XX', response);
   return responseHandler(response, debug);
 }
 
 const fetchWithJarvis = (url, params) => {
-  const debug = params.debug || true
-  debug && console.info('fetchWithJarvis@url : ', url);
-  debug && console.info('fetchWithJarvis@params', params);
-  // errorFormatObject && debug && console.log('fetchWithJarvis:errorFormatObject', errorFormatObject);
+  const debug = params.debug || false
+  if (DEBUG || debug) console.info('fetchWithJarvis@url : ', url);
+  if (DEBUG || debug) console.info('fetchWithJarvis@params', params);
   const options = {
     timeoutMS: params.timeout * 1000 || 10000,
   };
@@ -158,12 +149,12 @@ const fetchWithJarvis = (url, params) => {
     setTimeout(reject, options.timeoutMS, timeoutError);
   });
   const _fetch = new Promise((resolve, reject) => {
-    const _params = token !== {}
+    const _params = TOKEN !== {}
     ? {
       ...params,
       headers: {
         ...params.headers || {},
-        ...token,
+        ...TOKEN,
       },
     }
     : {
@@ -232,9 +223,9 @@ const fetchWithJarvis = (url, params) => {
         return resolve(httpCodeClientErrorHandler(response, debug))
       } else if (isHttpServerError(statusCode)) {
         return resolve(httpCodeServerErrorHandler(response, debug))
-      } else {
-        reject(httpCodeServerErrorHandler(response, debug))
       }
+      reject(httpCodeServerErrorHandler(response, debug))
+      return ''
     })
     .catch((error) => {
       console.error('_fetch catch', error);
@@ -262,8 +253,22 @@ const fetchWithJarvis = (url, params) => {
   return Promise.race([timeout, _fetch]);
 };
 
+const setDebugMode = (debug) => {
+  DEBUG = debug
+}
+
+const setAccessToken = (accessToken, key = 'Authorization') => {
+  TOKEN = {
+    [key]: accessToken,
+  }
+}
+
+const getAccessToken = () => TOKEN;
+
+
 export {
   fetchWithJarvis,
   setAccessToken,
   getAccessToken,
+  setDebugMode,
 };
