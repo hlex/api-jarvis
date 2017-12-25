@@ -1,15 +1,31 @@
-import { defaultValidateServiceError, defaultResponseToErrorConvertor } from './utils';
+import {
+  defaultValidateServiceError,
+  defaultResponseToErrorConvertor
+} from './utils'
 
-const handleResponseCatchError = (response, customApiErrorValidationFunction, convertorFunction) => {
-  if (typeof customApiErrorValidationFunction === 'function' && typeof convertorFunction === 'function') {
-    if (customApiErrorValidationFunction(response)) throw convertorFunction(response);
-    else return response;
+const handleResponseCatchError = (
+  data,
+  isResponseError,
+  toErrorFormat,
+  meta
+) => {
+  if (isResponseError && typeof isResponseError === 'function') {
+    if (toErrorFormat && typeof toErrorFormat === 'function') {
+      if (isResponseError(data, meta)) throw toErrorFormat(data, meta)
+    } else {
+      console.warn(`You didn't send 'toErrorFormat' function, Jarvis will using his own function`)
+      if (isResponseError(data, meta)) { throw defaultResponseToErrorConvertor(data, meta) }
+    }
+    return data
   }
-  console.warn('You do not send any validation function');
-  console.warn('Jarvis will using his own function');
-  // use default
-  if (defaultValidateServiceError(response)) throw defaultResponseToErrorConvertor(response);
-  return response;
+  console.warn(`You didn't send 'isResponseError' function, Jarvis will use his own function`)
+  if (toErrorFormat && typeof toErrorFormat === 'function') {
+    if (defaultValidateServiceError(data, meta)) throw toErrorFormat(data, meta)
+  } else {
+    console.warn(`You didn't send 'toErrorFormat' function, Jarvis will using his own function`)
+    if (defaultValidateServiceError(data, meta)) { throw defaultResponseToErrorConvertor(data, meta) }
+  }
+  return data
 }
 
-export default handleResponseCatchError;
+export default handleResponseCatchError

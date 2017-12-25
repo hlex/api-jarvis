@@ -1,8 +1,9 @@
-import fetch from 'isomorphic-fetch';
-import _ from 'lodash';
-import convertToURLParam from './convertToURLParam';
-import { ServerError, ClientError } from './models';
-import { prepareRequest } from './utils';
+import fetch from 'isomorphic-fetch'
+import _ from 'lodash'
+import convertToURLParam from './convertToURLParam'
+import { ServerError, ClientError } from './models'
+import { prepareRequest } from './utils'
+import handleResponseCatchError from './handleResponses'
 
 let TOKEN = {}
 let DEBUG = false
@@ -14,13 +15,13 @@ const isHttpRedirection = code => code >= 300 && code <= 399
 const isHttpClientError = code => code >= 400 && code <= 499
 const isHttpServerError = code => code >= 500 && code <= 599
 
-const regexJson = new RegExp('^application/json', 'i');
-const regexText = new RegExp('^text/plain', 'i');
+const regexJson = new RegExp('^application/json', 'i')
+const regexText = new RegExp('^text/plain', 'i')
 
-const isJson = value => regexJson.test(value);
-const isText = value => regexText.test(value);
+const isJson = value => regexJson.test(value)
+const isText = value => regexText.test(value)
 
-const getContentType = response => response.headers.get('content-type');
+const getContentType = response => response.headers.get('content-type')
 
 const addUrlParameter = (url, params) => {
   const indexOfQuestionMark = url.indexOf('?') // found ?
@@ -42,12 +43,14 @@ const addUrlParameter = (url, params) => {
 const getResponse = (response, debug) => {
   const contentType = getContentType(response)
   if (DEBUG || debug) {
-    console.debug('=====================');
-    console.debug('responseHandler # isJson =', isJson(contentType));
-    console.debug('responseHandler # isText =', isText(contentType));
-    console.debug('=====================');
+    console.debug('=====================')
+    console.debug('responseHandler # isJson =', isJson(contentType))
+    console.debug('responseHandler # isText =', isText(contentType))
+    console.debug('=====================')
   }
-  if (isJson(contentType)) {
+  if (response.status === 204) {
+    return new Promise((resolve, reject) => resolve({}))
+  } else if (isJson(contentType)) {
     return response.json()
   } else if (isText(contentType)) {
     return response.text()
@@ -76,56 +79,56 @@ const getResponse = (response, debug) => {
   // })
 }
 
-const responseHandler = (response, debug = false) => {
-  const baseResponse = {
-    _status: response.status,
-    _headers: response.headers,
-    _contentType: response.headers.get('content-type'),
+const getMeta = response => {
+  return {
+    status: response.status,
+    headers: response.headers,
+    contentType: response.headers.get('content-type')
   }
-  return getResponse(response, debug)
-  .then((responseBody) => {
-    const wrapperdResponse = {
-      ...baseResponse,
-      ...responseBody,
-      responseBody,
-    };
-    if (DEBUG || debug) console.log('fetchWithJarvis@response', wrapperdResponse)
-    return wrapperdResponse
+}
+
+const responseHandler = (response, debug = false) => {
+  return getResponse(response, debug).then(responseBody => {
+    if (DEBUG || debug) console.log('fetchWithJarvis@response', responseBody)
+    return {
+      meta: getMeta(response),
+      data: responseBody
+    }
   })
 }
 
 const httpCodeInformationalHandler = (response, debug = false) => {
-  if (DEBUG || debug) console.debug('response # status = 1XX', response);
-  return responseHandler(response, debug);
+  if (DEBUG || debug) console.debug('response # status = 1XX', response)
+  return responseHandler(response, debug)
 }
 
 const httpCodeSuccesslHandler = (response, debug = false) => {
-  if (DEBUG || debug) console.debug('response # status = 2XX', response);
-  return responseHandler(response, debug);
+  if (DEBUG || debug) console.debug('response # status = 2XX', response)
+  return responseHandler(response, debug)
 }
 
 const httpCodeRedirectionHandler = (response, debug = false) => {
-  if (DEBUG || debug) console.debug('response # status = 3XX', response);
-  return responseHandler(response, debug);
+  if (DEBUG || debug) console.debug('response # status = 3XX', response)
+  return responseHandler(response, debug)
 }
 
 const httpCodeClientErrorHandler = (response, debug = false) => {
-  if (DEBUG || debug) console.debug('response # status = 4XX', response);
-  return responseHandler(response, debug);
+  if (DEBUG || debug) console.debug('response # status = 4XX', response)
+  return responseHandler(response, debug)
 }
 
 const httpCodeServerErrorHandler = (response, debug = false) => {
-  if (DEBUG || debug) console.debug('response # status = 5XX', response);
-  return responseHandler(response, debug);
+  if (DEBUG || debug) console.debug('response # status = 5XX', response)
+  return responseHandler(response, debug)
 }
 
-const fetchWithJarvis = (url, params) => {
+const fetchWithJarvis = (url, params, plugins) => {
   const debug = params.debug || false
-  if (DEBUG || debug) console.info('fetchWithJarvis@url : ', url);
-  if (DEBUG || debug) console.info('fetchWithJarvis@params', params);
+  if (DEBUG || debug) console.info('fetchWithJarvis@url : ', url)
+  if (DEBUG || debug) console.info('fetchWithJarvis@params', params)
   const options = {
-    timeoutMS: params.timeout * 1000 || 10000,
-  };
+    timeoutMS: params.timeout * 1000 || 10000
+  }
   const timeout = new Promise((resolve, reject) => {
     const timeoutError = new ClientError({
       type: 'ERROR',
@@ -133,8 +136,12 @@ const fetchWithJarvis = (url, params) => {
       processInstance: 'local',
       fault: {
         code: 'JVS-001',
-        'en-message': `It took longer than we expect (${options.timeoutMS}ms), please retry`,
-        'th-messsage': `ใช้เวลาต่อ service นานผิดปกติ (${options.timeoutMS}ms), กรุณาลองใหม่อีกครั้ง`,
+        'en-message': `It took longer than we expect (${
+          options.timeoutMS
+        }ms), please retry`,
+        'th-messsage': `ใช้เวลาต่อ service นานผิดปกติ (${
+          options.timeoutMS
+        }ms), กรุณาลองใหม่อีกครั้ง`
       },
       displayMessages: [
         {
@@ -142,133 +149,131 @@ const fetchWithJarvis = (url, params) => {
           'message-type': 'ERROR',
           'en-message': `Service Timeout ${options.timeoutMS}ms`,
           'th-message': `Service Timeout ${options.timeoutMS}ms`,
-          'technical-message': `Service timeout [${options.timeoutMS} ms.], url [${url}]`,
-        },
-      ],
-    });
-    setTimeout(reject, options.timeoutMS, timeoutError);
-  });
+          'technical-message': `Service timeout [${
+            options.timeoutMS
+          } ms.], url [${url}]`
+        }
+      ]
+    })
+    setTimeout(reject, options.timeoutMS, timeoutError)
+  })
   const _fetch = new Promise((resolve, reject) => {
-    const _params = TOKEN !== {}
-    ? {
-      ...params,
-      headers: {
-        ...params.headers || {},
-        ...TOKEN,
-      },
-    }
-    : {
-      ...params,
-      headers: {
-        ...params.headers || {},
-      },
-    }
+    const _params =
+      TOKEN !== {}
+        ? {
+          ...params,
+          headers: {
+            ...(params.headers || {}),
+            ...TOKEN
+          }
+        }
+        : {
+          ...params,
+          headers: {
+            ...(params.headers || {})
+          }
+        }
     const _url = params.cache ? url : addUrlParameter(url, { t: Date.now() })
     fetch(_url, prepareRequest(_params))
-    .then((response) => {
-      const statusCode = response.status || 500
-      if (debug) {
-        console.debug('=====================');
-        console.debug('response #', response);
-        console.debug('response # status :', statusCode);
-        console.debug('=====================');
-      }
-      if (statusCode === 404) {
-        reject(new ClientError({
-          type: 'ERROR',
-          trxId: Date.now(),
-          processInstance: 'local',
-          fault: {
-            code: 'JVS-002',
-            'en-message': `404: Http not found url:[${url}]`,
-            'th-messsage': `404: Http not found url:[${url}]`,
-          },
-          displayMessages: [
-            {
-              message: `404:Http not found url:[${url}]`,
-              'message-type': 'ERROR',
-              'en-message': `404: Http not found url:[${url}]`,
-              'th-message': `404: Http not found url:[${url}]`,
-              'technical-message': `404: Http not found url:[${url}]`,
-            },
-          ],
-        }))
-      } else if (statusCode === 502) {
-        reject(new ServerError({
-          type: 'ERROR',
-          trxId: Date.now(),
-          processInstance: 'local',
-          fault: {
-            code: 'JVS-003',
-            'en-message': `502: Bad Gateway url:[${url}]`,
-            'th-messsage': `502: Bad Gateway url:[${url}]`,
-          },
-          displayMessages: [
-            {
-              message: `502: Bad Gateway url:[${url}]`,
-              'message-type': 'ERROR',
-              'en-message': `502: Bad Gateway url:[${url}]`,
-              'th-message': `502: Bad Gateway url:[${url}]`,
-              'technical-message': `502: Bad Gateway url:[${url}]`,
-            },
-          ],
-        }));
-      } else if (isHttpCodeInformational(statusCode)) {
-        return resolve(httpCodeInformationalHandler(response, debug))
-      } else if (isHttpCodeSuccess(statusCode)) {
-        return resolve(httpCodeSuccesslHandler(response, debug))
-      } else if (isHttpRedirection(statusCode)) {
-        return resolve(httpCodeRedirectionHandler(response, debug))
-      } else if (isHttpClientError(statusCode)) {
-        return resolve(httpCodeClientErrorHandler(response, debug))
-      } else if (isHttpServerError(statusCode)) {
-        return resolve(httpCodeServerErrorHandler(response, debug))
-      }
-      reject(httpCodeServerErrorHandler(response, debug))
-      return ''
-    })
-    .catch((error) => {
-      console.error('_fetch catch', error);
-      reject(new ClientError({
-        type: 'ERROR',
-        trxId: Date.now(),
-        processInstance: 'local',
-        fault: {
-          code: 'Exception',
-          'en-message': `${error}`,
-          'th-messsage': `${error}`,
-        },
-        displayMessages: [
-          {
-            message: `${error}`,
-            'message-type': 'ERROR',
-            'en-message': `${error}`,
-            'th-message': `${error}`,
-            'technical-message': `${error}`,
-          },
-        ],
-      }))
-    })
-  });
-  return Promise.race([timeout, _fetch]);
-};
+      .then(response => {
+        const statusCode = response.status || 500
+        if (DEBUG || debug) {
+          console.debug('=====================')
+          console.debug('response #', response)
+          console.debug('response # status :', statusCode)
+          console.debug('=====================')
+        }
+        if (statusCode === 404) {
+          reject(
+            new ClientError({
+              type: 'ERROR',
+              trxId: Date.now(),
+              processInstance: 'local',
+              fault: {
+                code: 'JVS-002',
+                'en-message': `404: Http not found url:[${url}]`,
+                'th-messsage': `404: Http not found url:[${url}]`
+              },
+              displayMessages: [
+                {
+                  message: `404:Http not found url:[${url}]`,
+                  'message-type': 'ERROR',
+                  'en-message': `404: Http not found url:[${url}]`,
+                  'th-message': `404: Http not found url:[${url}]`,
+                  'technical-message': `404: Http not found url:[${url}]`
+                }
+              ]
+            })
+          )
+        } else if (statusCode === 502) {
+          reject(
+            new ServerError({
+              type: 'ERROR',
+              trxId: Date.now(),
+              processInstance: 'local',
+              fault: {
+                code: 'JVS-003',
+                'en-message': `502: Bad Gateway url:[${url}]`,
+                'th-messsage': `502: Bad Gateway url:[${url}]`
+              },
+              displayMessages: [
+                {
+                  message: `502: Bad Gateway url:[${url}]`,
+                  'message-type': 'ERROR',
+                  'en-message': `502: Bad Gateway url:[${url}]`,
+                  'th-message': `502: Bad Gateway url:[${url}]`,
+                  'technical-message': `502: Bad Gateway url:[${url}]`
+                }
+              ]
+            })
+          )
+        } else if (isHttpCodeInformational(statusCode)) {
+          return httpCodeInformationalHandler(response, debug)
+        } else if (isHttpCodeSuccess(statusCode)) {
+          return httpCodeSuccesslHandler(response, debug)
+        } else if (isHttpRedirection(statusCode)) {
+          return httpCodeRedirectionHandler(response, debug)
+        } else if (isHttpClientError(statusCode)) {
+          return httpCodeClientErrorHandler(response, debug)
+        } else if (isHttpServerError(statusCode)) {
+          return httpCodeServerErrorHandler(response, debug)
+        }
+        reject(httpCodeServerErrorHandler(response, debug))
+        return ''
+      })
+      .then(wrappedResponse => {
+        wrappedResponse.meta = {
+          ...wrappedResponse.meta,
+          location: url
+        }
+        if (plugins) {
+          handleResponseCatchError(
+            wrappedResponse.data,
+            plugins.isResponseError,
+            plugins.toErrorFormat,
+            wrappedResponse.meta
+          )
+        }
+        resolve(wrappedResponse.data, wrappedResponse.meta)
+      })
+      .catch(error => {
+        if (DEBUG || debug) console.error('fetchWithJarvis@catch', error)
+        reject(error)
+      })
+  })
+  return Promise.race([timeout, _fetch])
+}
 
-const setDebugMode = (debug) => {
+const setDebugMode = debug => {
   DEBUG = debug
 }
 
 const setAccessToken = (accessToken, key = 'Authorization') => {
   TOKEN = {
-    [key]: accessToken,
+    [key]: accessToken
   }
 }
 
-const getAccessToken = () => TOKEN;
+const getAccessToken = () => TOKEN
 
-
-export {
-  fetchWithJarvis,
-  setAccessToken,
-  getAccessToken,
-  setDebugMode,
-};
+export { fetchWithJarvis, setAccessToken, getAccessToken, setDebugMode }

@@ -5,7 +5,16 @@ A lightweight assistant which helping you get data more easier.
 ### If you liked, gimme a star, Thanks.
 
 ## Release Issues
-### Latest version is `v3.2.0`
+### Latest version is `v3.4.3`
+* `v3.4.3`
+  - Fixed `plugins` to be default at undefined.
+* `v3.4.2`
+  - Fixed bugs not reject properly error and should hide all log. (thanks for [GA-MO](https://github.com/GA-MO))
+* `v3.4.0`
+  - Update Features add parameter `'plugins'` in fetchWithJarvis. (thanks for [GA-MO](https://github.com/GA-MO))
+  - Migrate `'status', 'headers', 'contentType', 'location'` to `'meta'` (thanks for [GA-MO](https://github.com/GA-MO))
+* `v3.3.1`
+  - Handler status 204 to be resolve with baseResponse.
 * `v3.2.1`
   - Fixed bugs did not export getAccessToken, setDebugMode.
 * `v3.2.0`
@@ -23,7 +32,7 @@ Let's checked it out.
 - ES2015 https://babeljs.io/learn-es2015/
 - isomorphic-fetch https://github.com/matthew-andrews/isomorphic-fetch
 
-## Installation
+## Getting Started
 
 ### NPM
 `$ npm install api-jarvis --save`
@@ -31,45 +40,69 @@ Let's checked it out.
 ### YARN
 `$ yarn add api-jarvis`
 
-## Live Demo
+## Live Demo (running at api-jarvis v3.4.2)
 <https://hlex.github.io/api-jarvis/demo>
 
-The live demo is still running api-jarvis v2.2.0
+## Advanced Usage: Reveal Key Features
+If you are newbie, [`PLEASE START HERE`](#basicUsage)
+### There are many features we have provided
+- [Customize conditional to throw error.](#restApiErrorHandling)
+- [Customize error format.](#restApiErrorHandling)
+- [Auto or manual validate response. (default auto)](#autoOrManualValidate)
+- [Http status error handle build-in. (default reject 404, 502) *](#httpStatusErrorHandling)
+- [Http request Timeout handle build-in. (default 10 seconds) *](#timeoutHandling)
 
-## Basic Usage
+## <a id="basicUsage"></a>Basic Usage
 ```js
 import { fetchWithJarvis } from 'api-jarvis'
 
-const data = getData();
+const data = getData().then((response) => {
+  console.log('data', response)
+});
 
-export const getData = () => {
+const getData = () => {
   return fetchWithJarvis('http://httpstat.us/200')
-  .then((response) => {
-    // get yours data
+  .then((response, meta) => {
+    // get yours response
+    console.log(response, meta)
     return response
   })
 }
 ```
 
-## Features
-- Http status error handle build-in (such as http error code = 4XX, 5XX)
-- Timeout handle build-in (in seconds)
-- Default fetch options
-  - Content-Type: 'application/json'
-  - method: 'GET'
-  - credentials: 'same-origin'
-- Custom options
-- Default throw error conditional
-- Custom throw error conditional
-- Default error class
-- Custom error class
-- Set access_token to your fetch's header
-- Easy to generate url parameters from object
-- Providing many Utility functions
+## <a id="REST-error-handling"></a>Basic Usage with Error Handling
+import `'handleResponseCatchError'` from api-jarvis at the top of your js file.
 
-## Basic Usage with Error Handling
-Using `handleResponseCatchError` from api-jarvis at the top of your js file.
+By default, api-jarvis using it own `'isResponseError'` and `'toErrorFormat'` plugins's function.
 
+[See default plugins function description](#defaultFunctions)
+
+### For api-jarvis version `3.4.0`
+
+No need to import `handleResponseCatchError`, It will be called in function fetchWithJarvis
+
+
+```js
+import { fetchWithJarvis } from 'api-jarvis'
+
+const data = getData().then((response) => {
+  console.log('data', response)
+}).catch((error) => {
+  console.error('error', error)
+})
+
+export const getData = () => {
+  return fetchWithJarvis('http://httpstat.us/500')
+   .then((response, meta) => {
+    // get yours response
+    console.log(response, meta)
+    return response
+  })
+}
+
+```
+
+Example for version prior `3.4.0`
 ```js
 import { fetchWithJarvis, handleResponseCatchError } from 'api-jarvis'
 
@@ -79,25 +112,47 @@ export const getData = () => {
   return fetchWithJarvis('http://httpstat.us/500')
   .then((response) => {
     handleResponseCatchError(response) // this line automatically throw error if response has fault key
-  return response;
+    return response;
   })
 }
 ```
 
-### handleResponseCatchError(response, isError, convertResponseToAppFormat)
-Let's me talk about `handleResponseCatchError` function a little bit [(you can read full docs here)](<https://github.com/hlex/api-jarvis/blob/master/DOC.md>)
+## API Reference
 
-| Property        |     Type
-| ------------- |:-------------:
-| response      | Object
-| isError    | Function (optional)
-| convertResponseToAppFormat | Function (optional)
+### `1. fetchWithJarvis (url, options, plugins)`
+
+| Property | Type | Priority | Description
+| ------------- |:------------- |:-----|:--------- |
+| url      | String | `Required` | url to fetch.
+| options    | Object | Optional | Fetch options such as 'method', 'headers', etc.
+| plugins | PlugIns Schema | Optional | Plugins function to empower jarvis. ([See Plugins Schema](#schemaPlugins))
+
+### Example Usage
+```
+  return fetchWithJarvis()
+```
+2. ```
+
+
+---
+
+### `2. handleResponseCatchError(response, isResponseError, toErrorFormat, meta)`
+Let's me talk about `handleResponseCatchError` function a little bit
+
+This function is used to check response is success or error to manage work flow easily.
+
+Let's see in action.
+
+| Property | Type | Priority | Description
+| ------------- |:------------- |:-----|:--------- |
+| response      | Object | `Required` | Object to be parameters of isResponseError(response, meta) and toErrorFormat(response, meta)
+| isResponseError    | Function | Optional | Function which consider should resove or reject.
+| toErrorFormat | Function | Optional | Fucntion which return error format for catch (error) {}.
+| meta | Object | Optional | Object to be parameters of isResponseError(response, meta) and toErrorFormat(response, meta)
 
 You might not want to send isError or convertFormat functions (as you seen, it is optional) so these are defaults
 
-## Default isError function
-### isError is a function which using to decide that this response is error or not
-### For example, isError default fucntion check if response object contain key 'fault' is will be decided as error
+## <a id="defaultFunctions"></a>Default isError function
 ```js
 const isError = (response) => {
   return response.fault !== undefined;
@@ -126,8 +181,6 @@ export const getData = () => {
 ```
 
 ## Default convertResponseToAppFormat function
-### convertResponseToAppFormat is a function that receive response then itself will return another data. Normally, it uses to normalize any data from server format to be an application data format.
-### For example, convertResponseToAppFormat default function receive response then return instance of ApplicationError Class (you can see class definition below)
 
 ```js
 default class ApplicationError extends Error {
@@ -192,6 +245,22 @@ export const getData = () => {
   })
 }
 ```
+
+## Features
+- Http status error handle build-in (such as http error code = 4XX, 5XX)
+- Timeout handle build-in (in seconds)
+- Default fetch options
+  - Content-Type: 'application/json'
+  - method: 'GET'
+  - credentials: 'same-origin'
+- Custom options
+- Default throw error conditional
+- Custom throw error conditional
+- Default error class
+- Custom error class
+- Set access_token to your fetch's header
+- Easy to generate url parameters from object
+- Providing many Utility functions
 
 ### You can find more feature's examples in [DOC.MD](<https://github.com/hlex/redux-form-manager/blob/master/DOC.md>)
 
