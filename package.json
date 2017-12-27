@@ -34,9 +34,12 @@
     "build": "npm run clean && npm run build-demo && cross-env BABEL_ENV=production babel src --out-dir dist",
     "clean": "better-npm-run clean",
     "test": "better-npm-run test",
+    "test:watch": "better-npm-run test --watch",
     "semantic-release": "semantic-release pre && npm publish && semantic-release post",
     "prerelease": "npm run build && npm run build-demo && git push origin master --tags && npm adduser",
-    "release": "npm publish"
+    "release": "npm publish",
+    "precommit": "npm test",
+    "prepush": "npm test"
   },
   "betterScripts": {
     "dev": {
@@ -52,7 +55,7 @@
       }
     },
     "test": {
-      "command": "mocha ./test/*.spec.js --compilers js:babel-register --watch"
+      "command": "mocha ./test/*.spec.js --compilers js:babel-register"
     },
     "clean": {
       "command": "rimraf demo dist"
@@ -79,7 +82,7 @@
     "es6-promise": "^3.2.1",
     "eslint": "^3.19.0",
     "eslint-config-standard": "^10.2.0",
-    "eslint-config-standard-react": "^4.3.0",
+    "eslint-config-standard-react": "^5.0.0",
     "eslint-plugin-import": "^2.8.0",
     "eslint-plugin-node": "^4.2.2",
     "eslint-plugin-promise": "^3.5.0",
@@ -91,6 +94,7 @@
     "extract-text-webpack-plugin": "^1.0.1",
     "file-loader": "^0.8.5",
     "http-proxy-middleware": "^0.17.4",
+    "husky": "^0.14.3",
     "mocha": "^2.5.3",
     "nock": "^9.0.9",
     "node-libs-browser": "^0.5.2",
