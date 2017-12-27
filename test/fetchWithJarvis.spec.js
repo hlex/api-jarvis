@@ -89,34 +89,34 @@ nock('http://localhost')
 describe('fetch with jarvis functional', () => {
   // 200
   it('should resolve 200', () => {
-    return expect(fetchWithJarvis('http://localhost/test200')).to.eventually.be.fulfilled
+    return expect(fetchWithJarvis('http://httpstat.us/200')).to.eventually.be.fulfilled
     .then((response) => {
-      expect(response).to.have.property('status', 'SUCCESSFUL');
+      expect(response).to.equal('200 OK');
     })
   });
   // 302
   // 304
   // 400
   it('should resolve 400', () => {
-    return expect(fetchWithJarvis('http://localhost/test400')).to.eventually.be.fulfilled
+    return expect(fetchWithJarvis('http://httpstat.us/400')).to.eventually.be.fulfilled
     .then((response) => {
-      expect(response).to.have.property('trx-id');
+      expect(response).to.equal('400 Bad Request');
     })
   });
   // 404
   it('should reject 404', () => {
-    return expect(fetchWithJarvis('http://localhost/test404')).to.rejectedWith(Error);
+    return expect(fetchWithJarvis('http://404.com')).to.rejectedWith(Error);
   });
   // 500
   it('should resolve 500', () => {
-    return expect(fetchWithJarvis('http://localhost/test500')).to.eventually.be.fulfilled
+    return expect(fetchWithJarvis('http://httpstat.us/500')).to.eventually.be.fulfilled
     .then((response) => {
-      expect(response).to.have.property('trx-id');
+      expect(response).to.equal('500 Internal Server Error');
     })
   });
   // 502
   it('should reject 502', () => {
-    return expect(fetchWithJarvis('http://localhost/test502')).to.rejectedWith(Error);
+    return expect(fetchWithJarvis('http://httpstat.us/502')).to.rejectedWith(Error);
   });
 });
 
