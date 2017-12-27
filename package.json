@@ -1,6 +1,6 @@
 {
   "name": "api-jarvis",
-  "version": "3.4.3",
+  "version": "3.5.0",
   "description": "api jarvis project",
   "main": "dist/index.js",
   "repository": {
@@ -36,7 +36,7 @@
     "test": "better-npm-run test",
     "test:watch": "better-npm-run test --watch",
     "semantic-release": "semantic-release pre && npm publish && semantic-release post",
-    "prerelease": "npm run build && npm run build-demo && git push origin master --tags && npm adduser",
+    "prerelease": "npm run test && npm run build && npm run build-demo && git push origin master --tags && npm adduser",
     "release": "npm publish",
     "precommit": "npm test",
     "prepush": "npm test"
