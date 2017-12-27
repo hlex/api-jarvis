@@ -130,10 +130,6 @@ export const fetchStats = errorCode =>
     `${URL.stats}/${errorCode}`,
     {
       method: 'GET'
-    },
-    {
-      // isResponseError: isServiceError,
-      // toErrorFormat: convertServiceResponseToError
     }
   ).then((response, meta) => {
     console.log('fetchStats', response, meta)
@@ -256,5 +252,14 @@ export const fetchUploadImage = (url, datas) => {
   return fetchWithJarvis(url, {
     method: 'POST',
     body: formData
+  })
+}
+
+export const fetch404 = () => {
+  return fetchWithJarvis('http://prevaa.com/api/x', {
+    method: 'GET'
+  })
+  .then((response) => {
+    return response
   })
 }

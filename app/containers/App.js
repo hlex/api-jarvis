@@ -78,7 +78,7 @@ export default class App extends React.Component {
               <div className='D-4'>
                 <button
                   className='button jarvis full'
-                  onClick={() => actions.getStats(404)}
+                  onClick={() => actions.test404()}
                 >
                   Fetch Error 404
                 </button>
