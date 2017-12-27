@@ -7,7 +7,6 @@ import handleResponseCatchError from './handleResponses'
 
 let TOKEN = {}
 let DEBUG = false
-// const REJECT_CODES = [404, 502]
 
 const isHttpCodeInformational = code => code >= 100 && code <= 199
 const isHttpCodeSuccess = code => code >= 200 && code <= 299
@@ -56,27 +55,6 @@ const getResponse = (response, debug) => {
     return response.text()
   }
   return response.json()
-  // return new Promise((resolve, reject) => {
-  //   reject(new ServerError({
-  //     type: 'ERROR',
-  //     trxId: Date.now(),
-  //     processInstance: 'local',
-  //     fault: {
-  //       code: 'JVS-XXX',
-  //       'en-message': `content-type ${contentType} was not handled`,
-  //       'th-messsage': `content-type ${contentType} was not handled`,
-  //     },
-  //     displayMessages: [
-  //       {
-  //         message: `content-type ${contentType} was not handled`,
-  //         'message-type': 'ERROR',
-  //         'en-message': `content-type ${contentType} was not handled`,
-  //         'th-message': `content-type ${contentType} was not handled`,
-  //         'technical-message': `content-type ${contentType} was not handled`,
-  //       },
-  //     ],
-  //   }))
-  // })
 }
 
 const getMeta = response => {
@@ -122,12 +100,69 @@ const httpCodeServerErrorHandler = (response, debug = false) => {
   return responseHandler(response, debug)
 }
 
-const fetchWithJarvis = (url, params, plugins) => {
+const isEmpty = (data) => {
+  return _.isEmpty(data) || _.isUndefined(data) || _.isNull(data)
+}
+
+const hasPlugIns = (definePlugins) => {
+  if (isEmpty(definePlugins)) return false
+  const hasSomeFunction = _.compact(_.values(definePlugins))
+  if (isEmpty(hasSomeFunction)) return false
+  return true
+}
+
+const get404Error = (url) => {
+  return new ClientError({
+    type: 'ERROR',
+    trxId: Date.now(),
+    processInstance: 'local',
+    fault: {
+      code: 'JVS-002',
+      'en-message': `404: Http not found url:[${url}]`,
+      'th-messsage': `404: Http not found url:[${url}]`
+    },
+    displayMessages: [
+      {
+        message: `404:Http not found url:[${url}]`,
+        'message-type': 'ERROR',
+        'en-message': `404: Http not found url:[${url}]`,
+        'th-message': `404: Http not found url:[${url}]`,
+        'technical-message': `404: Http not found url:[${url}]`
+      }
+    ]
+  })
+}
+
+const get502Error = (url) => {
+  return new ServerError({
+    type: 'ERROR',
+    trxId: Date.now(),
+    processInstance: 'local',
+    fault: {
+      code: 'JVS-003',
+      'en-message': `502: Bad Gateway url:[${url}]`,
+      'th-messsage': `502: Bad Gateway url:[${url}]`
+    },
+    displayMessages: [
+      {
+        message: `502: Bad Gateway url:[${url}]`,
+        'message-type': 'ERROR',
+        'en-message': `502: Bad Gateway url:[${url}]`,
+        'th-message': `502: Bad Gateway url:[${url}]`,
+        'technical-message': `502: Bad Gateway url:[${url}]`
+      }
+    ]
+  })
+}
+
+const fetchWithJarvis = (url, params = {}, definePlugins) => {
+  const plugins = hasPlugIns(definePlugins) ? definePlugins : undefined
   const debug = params.debug || false
   if (DEBUG || debug) console.info('fetchWithJarvis@url : ', url)
   if (DEBUG || debug) console.info('fetchWithJarvis@params', params)
+  if (DEBUG || debug) console.info('fetchWithJarvis@plugins', plugins)
   const options = {
-    timeoutMS: params.timeout * 1000 || 10000
+    timeoutMS: params.timeout * 1000 || 60000
   }
   const timeout = new Promise((resolve, reject) => {
     const timeoutError = new ClientError({
@@ -178,55 +213,15 @@ const fetchWithJarvis = (url, params, plugins) => {
       .then(response => {
         const statusCode = response.status || 500
         if (DEBUG || debug) {
-          console.debug('=====================')
-          console.debug('response #', response)
-          console.debug('response # status :', statusCode)
-          console.debug('=====================')
+          console.info('=====================')
+          console.info('response #', response)
+          console.info('response # status :', statusCode)
+          console.info('=====================')
         }
         if (statusCode === 404) {
-          reject(
-            new ClientError({
-              type: 'ERROR',
-              trxId: Date.now(),
-              processInstance: 'local',
-              fault: {
-                code: 'JVS-002',
-                'en-message': `404: Http not found url:[${url}]`,
-                'th-messsage': `404: Http not found url:[${url}]`
-              },
-              displayMessages: [
-                {
-                  message: `404:Http not found url:[${url}]`,
-                  'message-type': 'ERROR',
-                  'en-message': `404: Http not found url:[${url}]`,
-                  'th-message': `404: Http not found url:[${url}]`,
-                  'technical-message': `404: Http not found url:[${url}]`
-                }
-              ]
-            })
-          )
+          throw get404Error(url)
         } else if (statusCode === 502) {
-          reject(
-            new ServerError({
-              type: 'ERROR',
-              trxId: Date.now(),
-              processInstance: 'local',
-              fault: {
-                code: 'JVS-003',
-                'en-message': `502: Bad Gateway url:[${url}]`,
-                'th-messsage': `502: Bad Gateway url:[${url}]`
-              },
-              displayMessages: [
-                {
-                  message: `502: Bad Gateway url:[${url}]`,
-                  'message-type': 'ERROR',
-                  'en-message': `502: Bad Gateway url:[${url}]`,
-                  'th-message': `502: Bad Gateway url:[${url}]`,
-                  'technical-message': `502: Bad Gateway url:[${url}]`
-                }
-              ]
-            })
-          )
+          throw get502Error(url)
         } else if (isHttpCodeInformational(statusCode)) {
           return httpCodeInformationalHandler(response, debug)
         } else if (isHttpCodeSuccess(statusCode)) {
@@ -257,7 +252,17 @@ const fetchWithJarvis = (url, params, plugins) => {
         resolve(wrappedResponse.data, wrappedResponse.meta)
       })
       .catch(error => {
-        if (DEBUG || debug) console.error('fetchWithJarvis@catch', error)
+        if (DEBUG || debug) {
+          console.error('fetchWithJarvis@catch')
+          if (typeof error === 'string') {
+            console.error(error)
+          }
+          if (typeof error === 'object') {
+            for (const k in error) {
+              console.error(k, error[k])
+            }
+          }
+        }
         reject(error)
       })
   })
