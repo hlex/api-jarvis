@@ -8,7 +8,8 @@ import {
   fetchFilm,
   fetchStats,
   fetchGolds,
-  fetchUploadImage
+  fetchUploadImage,
+  fetch404
 } from '../apis'
 import imgAvatar from '../../images/no-warp.jpg'
 
@@ -270,6 +271,16 @@ export const uploadImagePartner = partnerCode => {
       )
     } catch (error) {
       openAlertMessage(error)
+    }
+  }
+}
+
+export const test404 = () => {
+  return async (dispatch, getState) => {
+    try {
+      await fetch404()
+    } catch (error) {
+      dispatch(handleError(error))
     }
   }
 }
