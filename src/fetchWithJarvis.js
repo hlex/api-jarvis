@@ -107,8 +107,17 @@ const isEmpty = (data) => {
 const hasPlugIns = (definePlugins) => {
   if (isEmpty(definePlugins)) return false
   const hasSomeFunction = _.compact(_.values(definePlugins))
+  console.log(definePlugins, hasSomeFunction)
   if (isEmpty(hasSomeFunction)) return false
   return true
+}
+
+const hasGetTimeoutErrorPlugin = (plugins) => {
+  return hasPlugIns(plugins) && plugins.getTimeoutErrorFormat && typeof plugins.getTimeoutErrorFormat === 'function'
+}
+
+const hasHandleResponseErrorPlugin = (plugins) => {
+  return hasPlugIns(plugins) && ((plugins.isResponseError && typeof plugins.isResponseError === 'function') || (plugins.toErrorFormat && typeof plugins.toErrorFormat === 'function'))
 }
 
 const createErrorObject = (code, { title, th, en, technical }) => {
@@ -189,7 +198,7 @@ const fetchWithJarvis = (url, params = {}, definePlugins) => {
     timeoutMS: params.timeout * 1000 || 60000
   }
   const timeout = new Promise((resolve, reject) => {
-    const timeoutError = new ClientError({
+    const timeoutError = hasGetTimeoutErrorPlugin(plugins) ? plugins.getTimeoutErrorFormat(url, params) : new ClientError({
       type: 'ERROR',
       trxId: Date.now(),
       processInstance: 'local',
@@ -265,7 +274,7 @@ const fetchWithJarvis = (url, params = {}, definePlugins) => {
           ...wrappedResponse.meta,
           location: url
         }
-        if (plugins) {
+        if (plugins && hasHandleResponseErrorPlugin(plugins)) {
           handleResponseCatchError(
             wrappedResponse.data,
             plugins.isResponseError,
@@ -292,16 +301,18 @@ const fetchWithJarvis = (url, params = {}, definePlugins) => {
           }
         }
         if (/Unexpected token < in JSON at position 0/ig.test(error)) {
+          console.error('Unexpected token < in JSON at position 0')
           reject(
             new ApplicationError(
-              getSyntaxError()
+              getSyntaxError(url)
             )
           )
         }
         if (/Failed to fetch/ig.test(error)) {
+          console.error('Failed to fetch')
           reject(
             new ApplicationError(
-              getFailedToFetchError()
+              getFailedToFetchError(url)
             )
           )
         }

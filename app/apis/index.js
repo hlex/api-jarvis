@@ -130,7 +130,18 @@ export const fetchStats = errorCode =>
   fetchWithJarvis(
     `${URL.stats}/${errorCode}`,
     {
-      method: 'GET'
+      method: 'GET',
+      timeout: 0.01
+    },
+    {
+      getTimeoutErrorFormat: (url, params) => {
+        return {
+          code: 'xxxxxxxx',
+          fault: '',
+          location: url,
+          params
+        }
+      }
     }
   ).then((response, meta) => {
     console.log('fetchStats', response, meta)
@@ -257,10 +268,12 @@ export const fetchUploadImage = (url, datas) => {
 }
 
 export const fetch404 = () => {
-  return fetchWithJarvis('http://prevaa.com/api/x', {
-    method: 'GET'
-  })
-  .then((response) => {
+  return fetchWithJarvis(
+    'http://prevaa.com/api/x',
+    {
+      method: 'GET',
+    }
+  ).then(response => {
     return response
   })
 }

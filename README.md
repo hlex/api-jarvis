@@ -6,6 +6,8 @@ A lightweight assistant which helping you get data more easier.
 
 ## Release Issues
 ### Latest version is `v3.6.0`
+* `v3.7.0`
+  - Update Features `getTimeoutErrorFormat(url, params)` (thanks for [GA-MO](https://github.com/GA-MO))
 * `v3.6.0`
   - Handle error case 'Syntax error' and 'Failed to fetch (thanks for [KIRAN H](https://github.com/KIRAN-H)
 * `v3.5.0`
