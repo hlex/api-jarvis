@@ -2,9 +2,10 @@ import {
   fetchWithJarvis,
   convertToURLParam,
   handleResponseCatchError,
-  setAccessToken
+  setAccessToken,
+  setDebugMode
 } from 'api-jarvis'
-
+setDebugMode(true)
 // ====== Config ============
 
 setAccessToken(

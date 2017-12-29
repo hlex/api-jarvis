@@ -5,7 +5,9 @@ A lightweight assistant which helping you get data more easier.
 ### If you liked, gimme a star, Thanks.
 
 ## Release Issues
-### Latest version is `v3.5.0`
+### Latest version is `v3.6.0`
+* `v3.6.0`
+  - Handle error case 'Syntax error' and 'Failed to fetch (thanks for [KIRAN H](https://github.com/KIRAN-H)
 * `v3.5.0`
   - Fixed cannot throw http 404, 502 (thanks for [KIRAN H](https://github.com/KIRAN-H)
 * `v3.4.3`
@@ -42,7 +44,7 @@ Let's checked it out.
 ### YARN
 `$ yarn add api-jarvis`
 
-## Live Demo (running at api-jarvis v3.5.0)
+## Live Demo (running at api-jarvis v3.6.0)
 <https://hlex.github.io/api-jarvis/demo>
 
 ## Advanced Usage: Reveal Key Features

@@ -1,7 +1,7 @@
 import fetch from 'isomorphic-fetch'
 import _ from 'lodash'
 import convertToURLParam from './convertToURLParam'
-import { ServerError, ClientError } from './models'
+import { ApplicationError, ServerError, ClientError } from './models'
 import { prepareRequest } from './utils'
 import handleResponseCatchError from './handleResponses'
 
@@ -111,48 +111,72 @@ const hasPlugIns = (definePlugins) => {
   return true
 }
 
-const get404Error = (url) => {
-  return new ClientError({
+const createErrorObject = (code, { title, th, en, technical }) => {
+  const errorObject = {
     type: 'ERROR',
     trxId: Date.now(),
-    processInstance: 'local',
+    processInstance: 'api-jarvis',
     fault: {
-      code: 'JVS-002',
-      'en-message': `404: Http not found url:[${url}]`,
-      'th-messsage': `404: Http not found url:[${url}]`
+      code,
+      'en-message': `${en}`,
+      'th-messsage': `${th}`
     },
     displayMessages: [
       {
-        message: `404:Http not found url:[${url}]`,
+        message: `${title}`,
         'message-type': 'ERROR',
-        'en-message': `404: Http not found url:[${url}]`,
-        'th-message': `404: Http not found url:[${url}]`,
-        'technical-message': `404: Http not found url:[${url}]`
+        'en-message': `${en}`,
+        'th-message': `${th}`,
+        'technical-message': `${technical}`
       }
     ]
-  })
+  }
+  if (DEBUG) console.error(errorObject)
+  return errorObject
+}
+
+const get404Error = (url) => {
+  return new ClientError(
+    createErrorObject('JVS-002', {
+      title: `404: Http not found url:[${url}]`,
+      th: `404: Http not found url:[${url}]`,
+      en: `404: Http not found url:[${url}]`,
+      technical: `404: Http not found url:[${url}]`,
+    })
+  )
 }
 
 const get502Error = (url) => {
-  return new ServerError({
-    type: 'ERROR',
-    trxId: Date.now(),
-    processInstance: 'local',
-    fault: {
-      code: 'JVS-003',
-      'en-message': `502: Bad Gateway url:[${url}]`,
-      'th-messsage': `502: Bad Gateway url:[${url}]`
-    },
-    displayMessages: [
-      {
-        message: `502: Bad Gateway url:[${url}]`,
-        'message-type': 'ERROR',
-        'en-message': `502: Bad Gateway url:[${url}]`,
-        'th-message': `502: Bad Gateway url:[${url}]`,
-        'technical-message': `502: Bad Gateway url:[${url}]`
-      }
-    ]
-  })
+  return new ServerError(
+    createErrorObject('JVS-003', {
+      title: `502: Bad Gateway url:[${url}]`,
+      th: `502: Bad Gateway url:[${url}]`,
+      en: `502: Bad Gateway url:[${url}]`,
+      technical: `502: Bad Gateway url:[${url}]`,
+    })
+  )
+}
+
+const getFailedToFetchError = (url) => {
+  return new ApplicationError(
+    createErrorObject('JVS-004', {
+      title: `Failed to fetch`,
+      th: `ไม่สามารถทำการเรียกข้อมูลได้`,
+      en: `Failed to fetch`,
+      technical: `Failed to fetch url:[${url}]`
+    })
+  )
+}
+
+const getSyntaxError = (url) => {
+  return new ApplicationError(
+    createErrorObject('JVS-000', {
+      title: 'Response could not be found',
+      th: 'Response error. Please recheck http response',
+      en: 'Response error. Please recheck http response',
+      technical: `SyntaxError: Unexpected token < in JSON at position 0 url:[${url}]`
+    })
+  )
 }
 
 const fetchWithJarvis = (url, params = {}, definePlugins) => {
@@ -258,10 +282,28 @@ const fetchWithJarvis = (url, params = {}, definePlugins) => {
             console.error(error)
           }
           if (typeof error === 'object') {
-            for (const k in error) {
-              console.error(k, error[k])
+            if (Object.keys(error).length > 0) {
+              for (const k in error) {
+                console.error(k, error[k])
+              }
+            } else {
+              console.error(error)
             }
           }
+        }
+        if (/Unexpected token < in JSON at position 0/ig.test(error)) {
+          reject(
+            new ApplicationError(
+              getSyntaxError()
+            )
+          )
+        }
+        if (/Failed to fetch/ig.test(error)) {
+          reject(
+            new ApplicationError(
+              getFailedToFetchError()
+            )
+          )
         }
         reject(error)
       })

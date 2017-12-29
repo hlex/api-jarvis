@@ -86,7 +86,8 @@ export default class App extends React.Component {
               <div className='D-4'>
                 <button
                   className='button jarvis full'
-                  onClick={() => actions.getStats(302)}
+                  // onClick={() => actions.getStats(302)}
+                  onClick={() => actions.getCustomerProfileWithUnAuthorize()}
                 >
                   Fetch Error 304
                 </button>
