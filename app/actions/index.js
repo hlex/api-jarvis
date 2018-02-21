@@ -43,7 +43,6 @@ export const openAlertMessage = (
 
 // catch api error call this function
 export const handleError = error => {
-  debugger
   return (dispatch, getState) => {
     const loginInfo = getState().loginInfo
     dispatch({

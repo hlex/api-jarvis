@@ -28,10 +28,11 @@ const apacheURL = {
   customerProfile: `${baseApacheURL}/profiles/customer/get`
 }
 
-const getErrorType = res => res['display-messages'][0]['message-type']
+const getErrorType = res => 'ERROR'
 
 const isServiceError = (response, meta) => {
   console.log('isServiceError', response, meta)
+  if (meta.status !== 200 || meta.status !== 204) return true
   if (response.fault) return true
   if (typeof response === 'string' && response.indexOf('500') >= 0) return true
   return false
@@ -131,17 +132,28 @@ export const fetchStats = errorCode =>
     `${URL.stats}/${errorCode}`,
     {
       method: 'GET',
-      timeout: 0.01
+      timeout: 0.01,
+      autoReject: true
     },
     {
       getTimeoutErrorFormat: (url, params) => {
+        console.log('getTimeoutErrorFormat', url, params)
         return {
           code: 'xxxxxxxx',
           fault: '',
           location: url,
           params
         }
-      }
+      },
+      getAutoRejectErrorFormat: (url, params, meta) => {
+        console.log('getAutoRejectErrorFormat', url, params, meta)
+        return {
+          code: '234567890-',
+          fault: 'fghjkl;',
+          location: url,
+          params
+        }
+      },
     }
   ).then((response, meta) => {
     console.log('fetchStats', response, meta)
@@ -272,8 +284,28 @@ export const fetch404 = () => {
     'http://prevaa.com/api/x',
     {
       method: 'GET',
+      // autoReject: true
+    },
+    {
+      isResponseError: isServiceError,
+      toErrorFormat: convertServiceResponseToError
+      // getAutoRejectErrorFormat: (url, params, meta) => {
+      //   console.log('getAutoRejectErrorFormat', url, params, meta)
+      //   return {
+      //     code: '234567890-',
+      //     fault: 'fghjkl;',
+      //     location: url,
+      //     params
+      //   }
+      // }
     }
   ).then(response => {
+    console.log('response', response)
+    handleResponseCatchError(
+      response,
+      isServiceError,
+      convertServiceResponseToError
+    )
     return response
   })
 }
