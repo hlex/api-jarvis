@@ -107,13 +107,16 @@ const isEmpty = (data) => {
 const hasPlugIns = (definePlugins) => {
   if (isEmpty(definePlugins)) return false
   const hasSomeFunction = _.compact(_.values(definePlugins))
-  console.log(definePlugins, hasSomeFunction)
   if (isEmpty(hasSomeFunction)) return false
   return true
 }
 
 const hasGetTimeoutErrorPlugin = (plugins) => {
   return hasPlugIns(plugins) && plugins.getTimeoutErrorFormat && typeof plugins.getTimeoutErrorFormat === 'function'
+}
+
+const hasGetAutoRejectErrorFormatPlugin = (plugins) => {
+  return hasPlugIns(plugins) && plugins.getAutoRejectErrorFormat && typeof plugins.getAutoRejectErrorFormat === 'function'
 }
 
 const hasHandleResponseErrorPlugin = (plugins) => {
@@ -194,6 +197,7 @@ const fetchWithJarvis = (url, params = {}, definePlugins) => {
   if (DEBUG || debug) console.info('fetchWithJarvis@url : ', url)
   if (DEBUG || debug) console.info('fetchWithJarvis@params', params)
   if (DEBUG || debug) console.info('fetchWithJarvis@plugins', plugins)
+  const autoReject = params.autoReject || false
   const options = {
     timeoutMS: params.timeout * 1000 || 60000
   }
@@ -251,9 +255,11 @@ const fetchWithJarvis = (url, params = {}, definePlugins) => {
           console.info('response # status :', statusCode)
           console.info('=====================')
         }
-        if (statusCode === 404) {
+        if (statusCode === 404 && autoReject) {
+          if (hasGetAutoRejectErrorFormatPlugin(plugins)) throw plugins.getAutoRejectErrorFormat(url, params, responseHandler(response, debug))
           throw get404Error(url)
-        } else if (statusCode === 502) {
+        } else if (statusCode === 502 && autoReject) {
+          if (hasGetAutoRejectErrorFormatPlugin(plugins)) throw plugins.getAutoRejectErrorFormat(url, params)
           throw get502Error(url)
         } else if (isHttpCodeInformational(statusCode)) {
           return httpCodeInformationalHandler(response, debug)
@@ -270,6 +276,11 @@ const fetchWithJarvis = (url, params = {}, definePlugins) => {
         return ''
       })
       .then(wrappedResponse => {
+        if (DEBUG || debug) {
+          console.info('=====================')
+          console.info('wrappedResponse #', wrappedResponse)
+          console.info('=====================')
+        }
         wrappedResponse.meta = {
           ...wrappedResponse.meta,
           location: url
