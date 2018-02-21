@@ -5,7 +5,10 @@ A lightweight assistant which helping you get data more easier.
 ### If you liked, gimme a star, Thanks.
 
 ## Release Issues
-### Latest version is `v3.6.0`
+### Latest version is `v4.0.0`
+* `v4.0.0`
+  - Update Features `getAutoRejectErrorFormat` (thanks for [GA-MO](https://github.com/GA-MO))
+  - Disable `autoReject` 404 & 502, change it to be params flag. (thanks for [GA-MO](https://github.com/GA-MO))
 * `v3.7.0`
   - Update Features `getTimeoutErrorFormat(url, params)` (thanks for [GA-MO](https://github.com/GA-MO))
 * `v3.6.0`
@@ -46,7 +49,7 @@ Let's checked it out.
 ### YARN
 `$ yarn add api-jarvis`
 
-## Live Demo (running at api-jarvis v3.6.0)
+## Live Demo (running at api-jarvis v4.0.0)
 <https://hlex.github.io/api-jarvis/demo>
 
 ## Advanced Usage: Reveal Key Features
