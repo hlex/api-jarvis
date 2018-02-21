@@ -105,7 +105,7 @@ describe('fetch with jarvis functional', () => {
   });
   // 404
   it('should reject 404', () => {
-    return expect(fetchWithJarvis('http://404.com')).to.rejectedWith(Error);
+    return expect(fetchWithJarvis('http://prevaa.com/api/x', { autoReject: true })).to.rejectedWith(Error);
   });
   // 500
   it('should resolve 500', () => {
@@ -116,7 +116,7 @@ describe('fetch with jarvis functional', () => {
   });
   // 502
   it('should reject 502', () => {
-    return expect(fetchWithJarvis('http://httpstat.us/502')).to.rejectedWith(Error);
+    return expect(fetchWithJarvis('http://httpstat.us/502', { autoReject: true })).to.rejectedWith(Error);
   });
 });
 
